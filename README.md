@@ -9,3 +9,9 @@ Current workflow
 4. Use NumPy in optimisation to find the songs in playlist with the shortest vector distance from target song
 5. Return list
 6. Optional - Allow different parameter weightings
+
+Things to look into:
+Essentia
+librosa
+Spotify Extended Audio Features API
+https://medium.com/@musicae.io/spotify-audio-analysis-was-deprecated-heres-the-best-spotify-api-alternative-for-developers-585750724f48
