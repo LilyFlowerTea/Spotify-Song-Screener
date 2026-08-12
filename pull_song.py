@@ -1,13 +1,22 @@
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+import os
 
-sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="7a13b6abf1aa4079a6fba063710f13a7",
-                                                           client_secret="3abc4315a7fe4184b1f1ea7964a25e3b"))
-cdp_uri = 'spotify:artist:2eRNMtoi82UZUuaL6naDjA'
+from dotenv import load_dotenv
+from pathlib import Path
 
-results = sp.artist_albums(cdp_uri, album_type = 'album')
+load_dotenv(dotenv_path=Path(__file__).with_name(".env"))
+
+from spotipy.oauth2 import SpotifyOAuth
+
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLIENT_ID"],
+                                               client_secret=os.environ["SPOTIPY_CLIENT_SECRET"],
+                                               redirect_uri=os.environ["SPOTIPY_REDIRECT_URI"],
+                                               scope="user-library-read"))
+
+taylor_uri = 'https://open.spotify.com/artist/2eRNMtoi82UZUuaL6naDjA'
+
+results = sp.artist_albums(taylor_uri, album_type='album')
 albums = results['items']
-
 while results['next']:
     results = sp.next(results)
     albums.extend(results['items'])
