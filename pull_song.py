@@ -13,10 +13,13 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLI
                                                redirect_uri=os.environ["SPOTIPY_REDIRECT_URI"],
                                                scope="user-library-read"))
 
-playlist_id = "https://open.spotify.com/playlist/2zWZnSHWMmEL0muWdFK8Ch"
+playlist_id = input("Paste playlist URL here: ")
 
+playlist = sp.playlist(playlist_id)
 results = sp.playlist_items(playlist_id)
 
-for item in results['items']:
-    track = item['item']
+print(f"Playlist name is: {playlist["name"]}")
+
+for object in results['items']:
+    track = object['item']
     print(track['name'], "-", track['artists'][0]['name'])
