@@ -13,13 +13,10 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLI
                                                redirect_uri=os.environ["SPOTIPY_REDIRECT_URI"],
                                                scope="user-library-read"))
 
-taylor_uri = 'https://open.spotify.com/artist/2eRNMtoi82UZUuaL6naDjA'
+playlist_id = "https://open.spotify.com/playlist/2zWZnSHWMmEL0muWdFK8Ch"
 
-results = sp.artist_albums(taylor_uri, album_type='album')
-albums = results['items']
-while results['next']:
-    results = sp.next(results)
-    albums.extend(results['items'])
+results = sp.playlist_items(playlist_id)
 
-for album in albums:
-    print(album['name'])
+for item in results['items']:
+    track = item['item']
+    print(track['name'], "-", track['artists'][0]['name'])
