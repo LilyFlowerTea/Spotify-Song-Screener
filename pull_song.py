@@ -17,12 +17,16 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLI
 
 # Build query string for audio feature extraction later
 # Start with target track, then append playlist tracks
-id_list = []
+id_list = {}
 
-#pull target song
+# #pull target song
 track_id = input("Paste track URL here: ")
 target_track = sp.track(track_id)
 print(f"Target song name is: {target_track["name"]}")
+#I know I could split the user input, doing this to check everything's working fine
+track_name = target_track['name']
+track_id = target_track['id']
+id_list[track_name] = track_id
 
 #chaff from testing
 # import pandas as pd
@@ -35,11 +39,21 @@ playlist_id = input("Paste playlist URL here: ")
 target_playlist = sp.playlist(playlist_id)
 print(f"Target playlist name is: {target_playlist["name"]}")
 results = sp.playlist_items(playlist_id)
+
+print(target_playlist)
+
 for object in results['items']:
     track = object['item']
-    # id_list.append()
+    track_id = track['id']
+    print(track_id)
+    id_list[track['name']] = track_id
     # List playlist songs, could be removed
     print(track['name'], "-", track['artists'][0]['name'])
+
+import pandas as pd
+print(id_list)
+df = pd.DataFrame(id_list.items(), columns = ["Key", "Value"])
+print(df)
 
 #Now start pulling audio features
 #Query string was built in playlist_pull, id_list
