@@ -20,11 +20,9 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLI
 id_list = []
 
 #pull target song
-def track_pull():
-    track_id = input("Paste track URL here: ")
-    target_track = sp.track(track_id)
-    print(f"Target song name is: {target_track["name"]}")
-    return target_track
+track_id = input("Paste track URL here: ")
+target_track = sp.track(track_id)
+print(f"Target song name is: {target_track["name"]}")
 
 #chaff from testing
 # import pandas as pd
@@ -33,20 +31,15 @@ def track_pull():
 # print(pd.DataFrame(target_track["album"]["artists"]))
 
 #pull target playlist
-def playlist_pull():
-    global id_list
-    playlist_id = input("Paste playlist URL here: ")
-    target_playlist = sp.playlist(playlist_id)
-    print(f"Target playlist name is: {target_playlist["name"]}")
-    results = sp.playlist_items(playlist_id)
+playlist_id = input("Paste playlist URL here: ")
+target_playlist = sp.playlist(playlist_id)
+print(f"Target playlist name is: {target_playlist["name"]}")
+results = sp.playlist_items(playlist_id)
+for object in results['items']:
+    track = object['item']
+    # id_list.append()
     # List playlist songs, could be removed
-    for object in results['items']:
-        track = object['item']
-        print(track['name'], "-", track['artists'][0]['name'])
-        id_list.append()
-
-# track_pull()
-# playlist_pull()
+    print(track['name'], "-", track['artists'][0]['name'])
 
 #Now start pulling audio features
 #Query string was built in playlist_pull, id_list
