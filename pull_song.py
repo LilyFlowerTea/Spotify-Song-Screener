@@ -20,7 +20,8 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLI
 id_list = {}
 
 # #pull target song
-track_id = input("Paste track URL here: ")
+track_id = "https://open.spotify.com/track/5vYaBqOAT6JpZlAD3gO1AO"
+# track_id = input("Paste track URL here: ")
 target_track = sp.track(track_id)
 print(f"Target song name is: {target_track["name"]}")
 #I know I could split the user input, doing this to check everything's working fine
@@ -35,32 +36,44 @@ id_list[track_name] = track_id
 # print(pd.DataFrame(target_track["album"]["artists"]))
 
 #pull target playlist
-playlist_id = input("Paste playlist URL here: ")
+playlist_id = "https://open.spotify.com/playlist/2Ehv3hyQ19J0n3VP0Fd9bN"
+# playlist_id = input("Paste playlist URL here: ")
 target_playlist = sp.playlist(playlist_id)
 print(f"Target playlist name is: {target_playlist["name"]}")
 results = sp.playlist_items(playlist_id)
 
-print(target_playlist)
-
 for object in results['items']:
     track = object['item']
     track_id = track['id']
-    print(track_id)
+    # print(track_id)
     id_list[track['name']] = track_id
     # List playlist songs, could be removed
-    print(track['name'], "-", track['artists'][0]['name'])
+    # print(track['name'], "-", track['artists'][0]['name'])
 
+ids = list((id_list.values()))
+
+#Visualisation of progress
 import pandas as pd
-print(id_list)
-df = pd.DataFrame(id_list.items(), columns = ["Key", "Value"])
-print(df)
+# df = pd.DataFrame(id_list.items(), columns = ["Song", "Spotify ID"])
+# print(df)
+
+#Parcelling out the track IDs into 5s and also formatting so they are accepted by audio feature extraction API
+pcls = {}
+index = 0
+parcel = f""
+count = 0
+for id in range(len(ids)):
+    parcel += f"{ids[id]}, "
+    count += 1
+    if count == 5:
+        pcls[index] = parcel
+        index += 1
+        parcel = ""
+        count = 0
 
 #Now start pulling audio features
-#Query string was built in playlist_pull, id_list
-
-
-
-# querystring = {"ids":"0DiWol3AO6WpXZgp0goxAV,1NeLwFETswx8Fzxl2AFl91"}
+#Query string has been built, named ids
+# querystring = {"ids" : ids}
 #
 # url = "https://spotify-extended-audio-features-api.p.rapidapi.com/v1/audio-features"
 # headers = {
@@ -72,4 +85,5 @@ print(df)
 # import requests
 # response = requests.get(url, headers=headers, params=querystring)
 #
+# print(response)
 # print(response.json())
