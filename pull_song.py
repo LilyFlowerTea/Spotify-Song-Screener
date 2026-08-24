@@ -20,7 +20,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLI
 id_list = {}
 
 # #pull target song
-track_id = "https://open.spotify.com/track/5vYaBqOAT6JpZlAD3gO1AO"
+track_id = "https://open.spotify.com/track/1qVQIlH6SyNDzNson7ZRy9"
 # track_id = input("Paste track URL here: ")
 target_track = sp.track(track_id)
 print(f"Target song name is: {target_track["name"]}")
@@ -36,7 +36,7 @@ id_list[track_name] = track_id
 # print(pd.DataFrame(target_track["album"]["artists"]))
 
 #pull target playlist
-playlist_id = "https://open.spotify.com/playlist/2Ehv3hyQ19J0n3VP0Fd9bN"
+playlist_id = "https://open.spotify.com/playlist/1LT8KdqwwTuSgLHXy4oK45"
 # playlist_id = input("Paste playlist URL here: ")
 target_playlist = sp.playlist(playlist_id)
 print(f"Target playlist name is: {target_playlist["name"]}")
@@ -63,27 +63,40 @@ index = 0
 parcel = f""
 count = 0
 for id in range(len(ids)):
-    parcel += f"{ids[id]}, "
+    parcel += f"{ids[id]},"
     count += 1
     if count == 5:
-        pcls[index] = parcel
+        pcls[index] = parcel[:-1]
         index += 1
         parcel = ""
         count = 0
+    if id == len(ids):
+        pcls[index] = parcel[:-1]
+    else:
+        pcls[index] = parcel[:-1]
+
+print(pcls)
 
 #Now start pulling audio features
+url = "https://spotify-extended-audio-features-api.p.rapidapi.com/v1/audio-features"
+headers = {
+	"x-rapidapi-key": os.environ["RAPID_API_KEY"],
+	"x-rapidapi-host": os.environ["RAPID_API_HOST"],
+	"Content-Type": "application/json"
+}
+
+import requests
+
 #Query string has been built, named ids
-# querystring = {"ids" : ids}
-#
-# url = "https://spotify-extended-audio-features-api.p.rapidapi.com/v1/audio-features"
-# headers = {
-# 	"x-rapidapi-key": os.environ["RAPID_API_KEY"],
-# 	"x-rapidapi-host": os.environ["RAPID_API_HOST"],
-# 	"Content-Type": "application/json"
-# }
-#
-# import requests
-# response = requests.get(url, headers=headers, params=querystring)
-#
-# print(response)
-# print(response.json())
+#Loop through for each parcel to get all audio features and add results to list
+features = []
+for parcel in range(len(pcls.values())):
+    querystring = {"ids" : f"{pcls[parcel]}"}
+    
+    # response = requests.get(url, headers=headers, params=querystring)
+    # features.append(response.json())
+    # print(response.json())
+
+    print(parcel, querystring["ids"])
+
+print(features)
