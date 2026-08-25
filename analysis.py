@@ -16,8 +16,10 @@ feature_list = ["id", "duration_ms", "tempo", "key", "mode", "time_signature", "
                 "speechiness", "valence"]
 
 #removes items key, mode, time_signature, tempo
-exclude_music_keys = input("Would you like to exclude musical data such as key and time signature? "
+exclude_music_keys = input("Would you like to EXCLUDE musical data such as key and time signature? "
                            "These do not contribute significantly to song similarity: ").lower()
+while exclude_music_keys not in ["true", "yes", "false", "no"]:
+    exclude_music_keys = input("Error. Would you like to EXCLUDE musical data such as key and time signature? ").lower()
 if exclude_music_keys in ["true", "yes"]:
     del feature_list[3:6]
 print(f"Exclude musical data such as key and time signature: {exclude_music_keys}")
@@ -65,11 +67,17 @@ for index in range(2):
 dist_matrix = feat_matrix - target_feats_array
 result = np.sqrt((weight_array * dist_matrix * dist_matrix).sum(axis = 1))
 
-#match with song IDs
-id_distances = [[id, float(distance)] for id, distance in zip(id_list, result)]
+#match names with song IDs using id_dict from pull_song.py
+reverse_id_dict = {id_str : name for name, id_str in pull_song.id_dict.items()}
+assigned_distances = [[reverse_id_dict[id], float(distance)] for id, distance in zip(id_list, result)]
+
+#format into a table for easy viewing
+import pandas as pd
+distance_table = pd.DataFrame(assigned_distances, columns = ["Song", "Distance"])
 
 print(f'Weighted Euclidean distances of songs in the playlist "{pull_song.playlist_name}" '
-      f'from "{pull_song.track_name}" are: {id_distances}')
-import pandas as pd
-table = pd.DataFrame(dist_matrix)
-# print(table)
+      f'from "{pull_song.track_name}" are:\n{distance_table.to_string(index = False)}')
+distance_table_sorted = distance_table.sort_values("Distance")
+distance_table_sorted.index = range(1, len(distance_table_sorted) + 1)
+print(f'The closest song matches to "{pull_song.track_name}" in "{pull_song.playlist_name}" '
+      f'are:\n{distance_table_sorted.head(10)}')
