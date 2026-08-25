@@ -15,15 +15,15 @@ audios = {'audio_features': [{'acousticness': 0.23, 'analysis_url': 'https://api
 audios = audios['audio_features']
 
 #use this for custom ordering of features
-feature_list = ["id", "duration_ms", "key", "mode", "time_signature", "tempo", "acousticness",
+feature_list = ["id", "duration_ms", "tempo", "key", "mode", "time_signature", "acousticness",
                 "danceability", "energy", "instrumentalness", "liveness", "loudness",
                 "speechiness", "valence"]
 
 #removes items key, mode, time_signature, tempo
-exclude_music_keys = True
+exclude_music_keys = False
 if exclude_music_keys:
-    del feature_list[1:6]
-print(feature_list)
+    del feature_list[3:6]
+print(f"Exclude musical data such as key and time signature: {exclude_music_keys}")
 
 #left as a reminder, not used currently
 unwanted_list = ["analysis_url", "track_href", "type", "uri"]
@@ -52,12 +52,27 @@ for track in range(len(audios)-1):
 target_feats_array = np.array(target_feats)
 id_array = np.array(id_list)
 feat_matrix = np.array(feat_list_list)
-print(target_feats_array)
-print(id_array)
-print(feat_matrix)
+# print(target_feats_array)
+# print(id_array)
+print(f"feat_matrix is {feat_matrix}")
+
+#normalising duration_ms and tempo, indices 0 and 1 since id is no longer present
+#DO NOT forget to normalise target song too
+for index in range(2):
+    print(f"target is {target_feats_array}")
+    values = [target_feats_array[index]]
+    values.extend([feat_matrix[track][index] for track in range(len(feat_matrix))])
+    print(f"values is {values}")
+    target_feats_array[index] = (values[0]-min(values))/(max(values)-min(values))
+    print(f"target is {target_feats_array}")
+    for track in range(len(values)-1):
+        feat_matrix[track][index] = [((x-min(values))/(max(values)-min(values))) for x in values[1:]][track]
+    print(feature_list[index+1])
+    print(f"feat_matrix is {feat_matrix}")
 
 #calculate euclidean distances
 dist_matrix = feat_matrix - target_feats_array
+print(dist_matrix)
 result = np.sqrt((weight_array * dist_matrix * dist_matrix).sum(axis = 1))
 print(result)
 import pandas as pd
