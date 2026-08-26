@@ -1,11 +1,11 @@
 #setting up
 import spotipy
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from pathlib import Path
 import requests
 
-load_dotenv(dotenv_path=Path(__file__).with_name(".env"))
+load_dotenv(find_dotenv())
 
 #authorise
 from spotipy.oauth2 import SpotifyOAuth
@@ -16,48 +16,42 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLI
 
 # Build query string for audio feature extraction later
 # Start with target track, then append playlist tracks
-id_dict = {}
-
-#Apres l'aurore
-# track_id = "https://open.spotify.com/track/1qVQIlH6SyNDzNson7ZRy9"
-#Viens on s'aime
-# track_id = "https://open.spotify.com/track/1KSFqVqZm5QQXr9FLsppSL"
-
-#excited playlist with one calm song, size = 4
-# playlist_id = "https://open.spotify.com/playlist/1LT8KdqwwTuSgLHXy4oK45"
-#calm playlist with some excited songs, size = 8
-# playlist_id = "https://open.spotify.com/playlist/6zIveFrPfn88thBqO4VxlM"
+id_dict = {"target" : {}, "playlist tracks" : {}}
 
 #User inputs
-track_id = input("Paste track URL here: ")
-playlist_id = input("Paste playlist URL here: ")
+# track_id = input("Paste track URL here: ")
+# playlist_id = input("Paste playlist URL here: ")
 
-# #pull target song
-target_track = sp.track(track_id)
-track_name = target_track["name"]
-print(f'Target song name is: "{track_name}"')
-#I know I could split the user input, doing this to check everything's working fine
-track_name = target_track['name']
-track_id = target_track['id']
-id_dict[track_name] = track_id
+#pull target song, returns song ID in a dictionary
+def pull_target_track(track_url):
+    target_track = sp.track(track_url)
+    track_name = target_track["name"]
+    track_id = target_track["id"]
+    id_dict["target"][track_name] = track_id
+    return track_name, id_dict
+# print(f'Target song name is: "{track_name}"')
 
 #pull target playlist
-target_playlist = sp.playlist(playlist_id)
-playlist_name = target_playlist["name"]
-print(f'Target playlist name is: "{playlist_name}"')
-results = sp.playlist_items(playlist_id)
+def pull_playlist(playlist_url):
+    target_playlist = sp.playlist(playlist_url)
+    playlist_name = target_playlist["name"]
+    results = sp.playlist_items(playlist_url)
+    return playlist_name, results
+# print(f'Target playlist name is: "{playlist_name}"')
+
+track_name, id_dict = pull_target_track("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C?autoplay_ok=1")
+playlist_name, results = pull_playlist("https://open.spotify.com/playlist/2Ehv3hyQ19J0n3VP0Fd9bN")
 
 #Collect playlist track IDs and names
-for object in results['items']:
-    track = object['item']
-    track_id = track['id']
-    # print(track_id)
-    id_dict[track['name']] = track_id
+for obj in results["items"]:
+    track = obj["item"]
+    track_id = track["id"]
+    id_dict["playlist tracks"][track["name"]] = track_id
     # No longer necessary, just reverse id_dict to get song names
     # Could be used if I wanted artist name as well
     # name_list.append((track['name'], track['artists'][0]['name']))
 
-ids = list((id_dict.values()))
+ids = [value for d in id_dict.values() for value in d.values()]
 
 #Parcelling out the track IDs into 5s and also formatting so they are accepted by audio feature extraction API
 pcls = {}
@@ -81,7 +75,7 @@ for id in range(len(ids)):
         pcls[index] = parcel[:-1]
     else:
         pcls[index] = parcel[:-1]
-
+print(pcls)
 #Now start pulling audio features
 url = "https://spotify-extended-audio-features-api.p.rapidapi.com/v1/audio-features"
 headers = {
@@ -100,7 +94,7 @@ for parcel in range(len(pcls.values())):
 
 #this block is to replace having to pull data each time since there are usage limits
 #the message reminds me I'm not getting the data I request by URL
-print("TEST MODE - URL DATA IS NOT RETRIEVED")
+print("TEST MODE - URL AUDIO DATA IS NOT RETRIEVED")
 audios = [{'acousticness': 0.23, 'analysis_url': 'https://api.spotify.com/v1/audio-analysis/1qVQIlH6SyNDzNson7ZRy9', 'danceability': 0.467, 'duration_ms': 212573, 'energy': 0.485, 'id': '1qVQIlH6SyNDzNson7ZRy9', 'instrumentalness': 3.5e-06, 'key': 5, 'liveness': 0.0934, 'loudness': -8.706, 'mode': 1, 'speechiness': 0.035, 'tempo': 83.515, 'time_signature': 4, 'track_href': 'https://api.spotify.com/v1/tracks/1qVQIlH6SyNDzNson7ZRy9', 'type': 'audio_features', 'uri': 'spotify:track:1qVQIlH6SyNDzNson7ZRy9', 'valence': 0.193}, {'acousticness': 0.263, 'analysis_url': 'https://api.spotify.com/v1/audio-analysis/6dti5eXjL9FxAZyETT5NEj', 'danceability': 0.607, 'duration_ms': 221973, 'energy': 0.85, 'id': '6dti5eXjL9FxAZyETT5NEj', 'instrumentalness': 0.00578, 'key': 8, 'liveness': 0.144, 'loudness': -5.989, 'mode': 1, 'speechiness': 0.0599, 'tempo': 105.025, 'time_signature': 4, 'track_href': 'https://api.spotify.com/v1/tracks/6dti5eXjL9FxAZyETT5NEj', 'type': 'audio_features', 'uri': 'spotify:track:6dti5eXjL9FxAZyETT5NEj', 'valence': 0.559}, {'acousticness': 0.645, 'analysis_url': 'https://api.spotify.com/v1/audio-analysis/2RFs9C6OfM6MaGBphZi3MB', 'danceability': 0.714, 'duration_ms': 222013, 'energy': 0.651, 'id': '2RFs9C6OfM6MaGBphZi3MB', 'instrumentalness': 2.61e-05, 'key': 2, 'liveness': 0.112, 'loudness': -7.862, 'mode': 0, 'speechiness': 0.0338, 'tempo': 106.973, 'time_signature': 4, 'track_href': 'https://api.spotify.com/v1/tracks/2RFs9C6OfM6MaGBphZi3MB', 'type': 'audio_features', 'uri': 'spotify:track:2RFs9C6OfM6MaGBphZi3MB', 'valence': 0.215}, {'acousticness': 0.103, 'analysis_url': 'https://api.spotify.com/v1/audio-analysis/2gYj9lubBorOPIVWsTXugG', 'danceability': 0.68, 'duration_ms': 176973, 'energy': 0.922, 'id': '2gYj9lubBorOPIVWsTXugG', 'instrumentalness': 0.0, 'key': 0, 'liveness': 0.0877, 'loudness': -1.215, 'mode': 1, 'speechiness': 0.121, 'tempo': 125.014, 'time_signature': 4, 'track_href': 'https://api.spotify.com/v1/tracks/2gYj9lubBorOPIVWsTXugG', 'type': 'audio_features', 'uri': 'spotify:track:2gYj9lubBorOPIVWsTXugG', 'valence': 0.799}, {'acousticness': 0.0, 'analysis_url': 'https://api.spotify.com/v1/audio-analysis/37bZGx53B90Kv0ftpFDbDZ', 'danceability': 0.6, 'duration_ms': 252000, 'energy': 0.84, 'id': '37bZGx53B90Kv0ftpFDbDZ', 'instrumentalness': 0.0, 'key': 7, 'liveness': 0.09, 'loudness': -3.96, 'mode': 1, 'speechiness': 0.03, 'tempo': 112.99, 'time_signature': 4, 'track_href': 'https://api.spotify.com/v1/tracks/37bZGx53B90Kv0ftpFDbDZ', 'type': 'audio_features', 'uri': 'spotify:track:37bZGx53B90Kv0ftpFDbDZ', 'valence': 0.28}]
 
 # print(audios)

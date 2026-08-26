@@ -3,3 +3,4 @@ dotenv
 pandas
 requests
 numpy
+fastapi
