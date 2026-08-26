@@ -63,11 +63,13 @@ for index in range(2):
 
 #calculate euclidean distances
 dist_matrix = feat_matrix - target_feats_array
-result = np.sqrt((weight_array * dist_matrix * dist_matrix).sum(axis = 1))
+distances = np.sqrt((weight_array * dist_matrix * dist_matrix).sum(axis = 1))
 
 #match names with song IDs using id_dict from pull_song.py
-reverse_id_dict = {id_str : name for name, id_str in pull_song.id_dict.items()}
-assigned_distances = [[reverse_id_dict[id], float(distance)] for id, distance in zip(id_list, result)]
+id_dict_dicts = [dic for key, dic in pull_song.id_dict.items() if isinstance(dic, dict)]
+#don't need the target track to be in the reversed dictionary so index to skip it
+reverse_id_dict = {id_str : name for name, id_str in id_dict_dicts[1].items()}
+assigned_distances = [[reverse_id_dict[id], float(distance)] for id, distance in zip(id_list, distances)]
 
 #format into a table for easy viewing
 distance_table = pd.DataFrame(assigned_distances, columns = ["Song", "Distance"])

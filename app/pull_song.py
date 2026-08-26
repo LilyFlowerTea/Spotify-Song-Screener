@@ -40,7 +40,7 @@ def pull_playlist(playlist_url):
 # print(f'Target playlist name is: "{playlist_name}"')
 
 track_name, id_dict = pull_target_track("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C?autoplay_ok=1")
-playlist_name, results = pull_playlist("https://open.spotify.com/playlist/2Ehv3hyQ19J0n3VP0Fd9bN")
+playlist_name, results = pull_playlist("https://open.spotify.com/playlist/1LT8KdqwwTuSgLHXy4oK45")
 
 #Collect playlist track IDs and names
 for obj in results["items"]:
