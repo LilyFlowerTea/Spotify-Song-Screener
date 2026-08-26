@@ -1,6 +1,5 @@
 #make sure to grab the data from pull_song.py
-import pull_song
-audios = pull_song.audios
+from pull_song import run_pull_song
 
 # time for some maths
 import numpy as np
@@ -14,69 +13,71 @@ manual_weighting = True
 
 ######################
 
-#use this for custom ordering of features
-feature_list = ["id", "duration_ms", "tempo", "key", "mode", "time_signature", "acousticness",
-                "danceability", "energy", "instrumentalness", "liveness", "loudness",
-                "speechiness", "valence"]
+def analysis_output(exclude_music_keys, manual_weighting):
 
-#left as a reminder, not used currently
-unwanted_list = ["analysis_url", "track_href", "type", "uri"]
+    id_dict, audios = run_pull_song("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C", "https://open.spotify.com/playlist/1LT8KdqwwTuSgLHXy4oK45")
 
-if exclude_music_keys:
-    del feature_list[3:6]
+    #use this for custom ordering of features
+    feature_list = ["id", "duration_ms", "tempo", "key", "mode", "time_signature", "acousticness",
+                    "danceability", "energy", "instrumentalness", "liveness", "loudness",
+                    "speechiness", "valence"]
 
-#weighting array
-#need to assign this beforehand or manual_weighting fails since the list indices don't exist yet
-weight_array = np.ones(len(feature_list) - 1)
+    #left as a reminder, not used currently
+    unwanted_list = ["analysis_url", "track_href", "type", "uri"]
 
-#extract and organise target song features
-target_id = audios[0]['id']
-target_feats = [audios[0][key] for key in feature_list[1:]]
+    if exclude_music_keys:
+        del feature_list[3:6]
 
-#id_array is separate since NumPy only accepts numbers
-id_list = []
-#list of lists to convert into matrix
-feat_list_list = []
+    #weighting array
+    #need to assign this beforehand or manual_weighting fails since the list indices don't exist yet
+    weight_array = np.ones(len(feature_list) - 1)
 
-#create list of lists then convert to array
-#skip the first audio since it's the target
-for track in range(len(audios)-1):
-    id_list.append(audios[track+1]['id'])
-    reorder_list = [audios[track+1][key] for key in feature_list[1:]]
-    feat_list_list.append(reorder_list)
-    reorder_list = []
+    #extract and organise target song features
+    target_id = audios[0]['id']
+    target_feats = [audios[0][key] for key in feature_list[1:]]
 
-#vectors assemble
-target_feats_array = np.array(target_feats)
-feat_matrix = np.array(feat_list_list)
+    #id_array is separate since NumPy only accepts numbers
+    id_list = []
+    #list of lists to convert into matrix
+    feat_list_list = []
 
-#normalising duration_ms and tempo, indices 0 and 1 since id is no longer present
-#even if the user chooses to exclude key, mode, etc. it shouldn't affect the indexing here since duration
-#and tempo come before those features
-#DO NOT forget to include and normalise target song too
-for index in range(2):
-    values = [target_feats_array[index]]
-    values.extend([feat_matrix[track][index] for track in range(len(feat_matrix))])
-    target_feats_array[index] = (values[0]-min(values))/(max(values)-min(values))
-    for track in range(len(values)-1):
-        feat_matrix[track][index] = [((x-min(values))/(max(values)-min(values))) for x in values[1:]][track]
+    #create list of lists then convert to array
+    #skip the first audio since it's the target
+    for track in range(len(audios)-1):
+        id_list.append(audios[track+1]['id'])
+        reorder_list = [audios[track+1][key] for key in feature_list[1:]]
+        feat_list_list.append(reorder_list)
+        reorder_list = []
 
-#calculate euclidean distances
-dist_matrix = feat_matrix - target_feats_array
-distances = np.sqrt((weight_array * dist_matrix * dist_matrix).sum(axis = 1))
+    #vectors assemble
+    target_feats_array = np.array(target_feats)
+    feat_matrix = np.array(feat_list_list)
 
-#match names with song IDs using id_dict from pull_song.py
-id_dict_dicts = [dic for key, dic in pull_song.id_dict.items() if isinstance(dic, dict)]
-#don't need the target track to be in the reversed dictionary so index to skip it
-reverse_id_dict = {id_str : name for name, id_str in id_dict_dicts[1].items()}
-assigned_distances = [[reverse_id_dict[id], float(distance)] for id, distance in zip(id_list, distances)]
+    #normalising duration_ms and tempo, indices 0 and 1 since id is no longer present
+    #even if the user chooses to exclude key, mode, etc. it shouldn't affect the indexing here since duration
+    #and tempo come before those features
+    #DO NOT forget to include and normalise target song too
+    for index in range(2):
+        values = [target_feats_array[index]]
+        values.extend([feat_matrix[track][index] for track in range(len(feat_matrix))])
+        target_feats_array[index] = (values[0]-min(values))/(max(values)-min(values))
+        for track in range(len(values)-1):
+            feat_matrix[track][index] = [((x-min(values))/(max(values)-min(values))) for x in values[1:]][track]
 
-#format into a table for easy viewing
-distance_table = pd.DataFrame(assigned_distances, columns = ["Song", "Distance"])
+    #calculate euclidean distances
+    dist_matrix = feat_matrix - target_feats_array
+    distances = np.sqrt((weight_array * dist_matrix * dist_matrix).sum(axis = 1))
 
-print(f'Weighted Euclidean distances of songs in the playlist "{pull_song.playlist_name}" '
-      f'from "{pull_song.track_name}" are:\n{distance_table.to_string(index = False)}')
-distance_table_sorted = distance_table.sort_values("Distance")
-distance_table_sorted.index = range(1, len(distance_table_sorted) + 1)
-print(f'The closest song matches to "{pull_song.track_name}" in "{pull_song.playlist_name}" '
-      f'are:\n{distance_table_sorted.head(10)}')
+    #match names with song IDs using id_dict from pull_song.py
+    id_dict_dicts = [dic for key, dic in id_dict.items() if isinstance(dic, dict)]
+    #don't need the target track to be in the reversed dictionary so index to skip it
+    reverse_id_dict = {id_str : name for name, id_str in id_dict_dicts[1].items()}
+    assigned_distances = [[reverse_id_dict[id], float(distance)] for id, distance in zip(id_list, distances)]
+
+    #format into a table for easy viewing
+    distance_table = pd.DataFrame(assigned_distances, columns = ["Song", "Distance"])
+    distance_table_sorted = distance_table.sort_values("Distance")
+    distance_table_sorted.index = range(1, len(distance_table_sorted) + 1)
+    return distance_table, distance_table_sorted
+
+print(analysis_output(exclude_music_keys, manual_weighting))
