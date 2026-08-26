@@ -1,12 +1,10 @@
 #make sure to grab the data from pull_song.py
 import pull_song
-
-import pandas as pd
+audios = pull_song.audios
 
 # time for some maths
 import numpy as np
-
-audios = pull_song.audios
+import pandas as pd
 
 #use this for custom ordering of features
 feature_list = ["id", "duration_ms", "tempo", "key", "mode", "time_signature", "acousticness",
