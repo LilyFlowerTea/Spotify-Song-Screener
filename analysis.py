@@ -1,32 +1,57 @@
 #make sure to grab the data from pull_song.py
 import pull_song
 
+import pandas as pd
+
 # time for some maths
 import numpy as np
 
-audios = [{'acousticness': 0.23, 'analysis_url': 'https://api.spotify.com/v1/audio-analysis/1qVQIlH6SyNDzNson7ZRy9', 'danceability': 0.467, 'duration_ms': 212573, 'energy': 0.485, 'id': '1qVQIlH6SyNDzNson7ZRy9', 'instrumentalness': 3.5e-06, 'key': 5, 'liveness': 0.0934, 'loudness': -8.706, 'mode': 1, 'speechiness': 0.035, 'tempo': 83.515, 'time_signature': 4, 'track_href': 'https://api.spotify.com/v1/tracks/1qVQIlH6SyNDzNson7ZRy9', 'type': 'audio_features', 'uri': 'spotify:track:1qVQIlH6SyNDzNson7ZRy9', 'valence': 0.193}, {'acousticness': 0.263, 'analysis_url': 'https://api.spotify.com/v1/audio-analysis/6dti5eXjL9FxAZyETT5NEj', 'danceability': 0.607, 'duration_ms': 221973, 'energy': 0.85, 'id': '6dti5eXjL9FxAZyETT5NEj', 'instrumentalness': 0.00578, 'key': 8, 'liveness': 0.144, 'loudness': -5.989, 'mode': 1, 'speechiness': 0.0599, 'tempo': 105.025, 'time_signature': 4, 'track_href': 'https://api.spotify.com/v1/tracks/6dti5eXjL9FxAZyETT5NEj', 'type': 'audio_features', 'uri': 'spotify:track:6dti5eXjL9FxAZyETT5NEj', 'valence': 0.559}, {'acousticness': 0.645, 'analysis_url': 'https://api.spotify.com/v1/audio-analysis/2RFs9C6OfM6MaGBphZi3MB', 'danceability': 0.714, 'duration_ms': 222013, 'energy': 0.651, 'id': '2RFs9C6OfM6MaGBphZi3MB', 'instrumentalness': 2.61e-05, 'key': 2, 'liveness': 0.112, 'loudness': -7.862, 'mode': 0, 'speechiness': 0.0338, 'tempo': 106.973, 'time_signature': 4, 'track_href': 'https://api.spotify.com/v1/tracks/2RFs9C6OfM6MaGBphZi3MB', 'type': 'audio_features', 'uri': 'spotify:track:2RFs9C6OfM6MaGBphZi3MB', 'valence': 0.215}, {'acousticness': 0.103, 'analysis_url': 'https://api.spotify.com/v1/audio-analysis/2gYj9lubBorOPIVWsTXugG', 'danceability': 0.68, 'duration_ms': 176973, 'energy': 0.922, 'id': '2gYj9lubBorOPIVWsTXugG', 'instrumentalness': 0.0, 'key': 0, 'liveness': 0.0877, 'loudness': -1.215, 'mode': 1, 'speechiness': 0.121, 'tempo': 125.014, 'time_signature': 4, 'track_href': 'https://api.spotify.com/v1/tracks/2gYj9lubBorOPIVWsTXugG', 'type': 'audio_features', 'uri': 'spotify:track:2gYj9lubBorOPIVWsTXugG', 'valence': 0.799}, {'acousticness': 0.0, 'analysis_url': 'https://api.spotify.com/v1/audio-analysis/37bZGx53B90Kv0ftpFDbDZ', 'danceability': 0.6, 'duration_ms': 252000, 'energy': 0.84, 'id': '37bZGx53B90Kv0ftpFDbDZ', 'instrumentalness': 0.0, 'key': 7, 'liveness': 0.09, 'loudness': -3.96, 'mode': 1, 'speechiness': 0.03, 'tempo': 112.99, 'time_signature': 4, 'track_href': 'https://api.spotify.com/v1/tracks/37bZGx53B90Kv0ftpFDbDZ', 'type': 'audio_features', 'uri': 'spotify:track:37bZGx53B90Kv0ftpFDbDZ', 'valence': 0.28}]
-
-# audios = pull_song.audios
+audios = pull_song.audios
 
 #use this for custom ordering of features
 feature_list = ["id", "duration_ms", "tempo", "key", "mode", "time_signature", "acousticness",
                 "danceability", "energy", "instrumentalness", "liveness", "loudness",
                 "speechiness", "valence"]
 
-#removes items key, mode, time_signature, tempo
-exclude_music_keys = input("Would you like to EXCLUDE musical data such as key and time signature? "
-                           "These do not contribute significantly to song similarity: ").lower()
-while exclude_music_keys not in ["true", "yes", "false", "no"]:
-    exclude_music_keys = input("Error. Would you like to EXCLUDE musical data such as key and time signature? ").lower()
-if exclude_music_keys in ["true", "yes"]:
+def user_inputs(question, error_msg):
+    boolean = input(question).lower()
+    while boolean not in ["true", "yes", "false", "no"]:
+        boolean = input(error_msg).lower()
+    if boolean in ["true", "yes"]:
+        return True
+    else:
+        return False
+
+exclude_music_keys = user_inputs("Would you like to EXCLUDE musical data such as key and time signature? "
+                           "These do not contribute significantly to song similarity (Yes/No): ",
+               "Error. Would you like to EXCLUDE musical data such as key and time signature? (Yes/No) ")
+if exclude_music_keys:
     del feature_list[3:6]
 print(f"Exclude musical data such as key and time signature: {exclude_music_keys}")
+
+#old way of getting input, made it modular when I started using weightings
+#removes items key, mode, time_signature, tempo
+# exclude_music_keys = input("Would you like to EXCLUDE musical data such as key and time signature? "
+#                            "These do not contribute significantly to song similarity (Yes/No): ").lower()
+# while exclude_music_keys not in ["true", "yes", "false", "no"]:
+#     exclude_music_keys = input("Error. Would you like to EXCLUDE musical data such as key and time signature? (Yes/No) ").lower()
+# if exclude_music_keys in ["true", "yes"]:
+#     del feature_list[3:6]
+# print(f"Exclude musical data such as key and time signature: {exclude_music_keys}")
 
 #left as a reminder, not used currently
 unwanted_list = ["analysis_url", "track_href", "type", "uri"]
 
 #weighting array
 weight_array = np.ones(len(feature_list)-1)
+manual_weighting = user_inputs("Would you like to manually set the parameter weightings "
+                               "for song characteristics? This will allow for better customisation (Yes/No): ",
+                               "Error. Would you like to manually set the parameter weightings for song "
+                               "characteristics? (Yes/No) ")
+if manual_weighting:
+    for feature in range(len(feature_list)-1):
+        weight_array[feature] =input(f"Please enter the weight to set for {feature_list[feature+1]}")
+    print(f"Your weight array")
 
 #extract and organise target song features
 target_id = audios[0]['id']
@@ -70,7 +95,6 @@ reverse_id_dict = {id_str : name for name, id_str in pull_song.id_dict.items()}
 assigned_distances = [[reverse_id_dict[id], float(distance)] for id, distance in zip(id_list, result)]
 
 #format into a table for easy viewing
-import pandas as pd
 distance_table = pd.DataFrame(assigned_distances, columns = ["Song", "Distance"])
 
 print(f'Weighted Euclidean distances of songs in the playlist "{pull_song.playlist_name}" '
