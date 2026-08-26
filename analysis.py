@@ -13,6 +13,10 @@ feature_list = ["id", "duration_ms", "tempo", "key", "mode", "time_signature", "
                 "danceability", "energy", "instrumentalness", "liveness", "loudness",
                 "speechiness", "valence"]
 
+#left as a reminder, not used currently
+unwanted_list = ["analysis_url", "track_href", "type", "uri"]
+
+#modular function for when user input is required, returns true or false
 def user_inputs(question, error_msg):
     boolean = input(question).lower()
     while boolean not in ["true", "yes", "false", "no"]:
@@ -29,29 +33,35 @@ if exclude_music_keys:
     del feature_list[3:6]
 print(f"Exclude musical data such as key and time signature: {exclude_music_keys}")
 
-#old way of getting input, made it modular when I started using weightings
-#removes items key, mode, time_signature, tempo
-# exclude_music_keys = input("Would you like to EXCLUDE musical data such as key and time signature? "
-#                            "These do not contribute significantly to song similarity (Yes/No): ").lower()
-# while exclude_music_keys not in ["true", "yes", "false", "no"]:
-#     exclude_music_keys = input("Error. Would you like to EXCLUDE musical data such as key and time signature? (Yes/No) ").lower()
-# if exclude_music_keys in ["true", "yes"]:
-#     del feature_list[3:6]
-# print(f"Exclude musical data such as key and time signature: {exclude_music_keys}")
-
-#left as a reminder, not used currently
-unwanted_list = ["analysis_url", "track_href", "type", "uri"]
-
 #weighting array
-weight_array = np.ones(len(feature_list)-1)
 manual_weighting = user_inputs("Would you like to manually set the parameter weightings "
                                "for song characteristics? This will allow for better customisation (Yes/No): ",
                                "Error. Would you like to manually set the parameter weightings for song "
                                "characteristics? (Yes/No) ")
+#need to assign this beforehand or manual_weighting fails since the list indices don't exist yet
+weight_array = np.ones(len(feature_list) - 1)
+
+def set_weights(feature_list):
+    weights_ok = False
+    while not weights_ok:
+        for feature in range(len(feature_list)-1):
+            while True:
+                try:
+                    weight = float(input(f"Please enter the multiplier weight to "
+                                              f"set for {feature_list[feature+1]}: "))
+                    break
+                except ValueError:
+                    print(f"Error, please enter a numerical multiplier weight for {feature_list[feature+1]} ")
+            weight_array[feature] = weight
+        weights_display = [[feature_list[i+1], weight_array[i]] for
+                                       i in range(len(feature_list)-1)]
+        weights_display = pd.DataFrame(weights_display, columns = ["Feature", "Weight"])
+        weights_display.index = range(1, len(weights_display) + 1)
+        weights_ok = user_inputs(f"Your weight array is:\n{weights_display}\nAre these what you wanted? (Yes/No) ",
+                    "Error. Are you satisfied with the current weight array? (Yes/No) ")
+
 if manual_weighting:
-    for feature in range(len(feature_list)-1):
-        weight_array[feature] =input(f"Please enter the weight to set for {feature_list[feature+1]}")
-    print(f"Your weight array")
+    set_weights(feature_list)
 
 #extract and organise target song features
 target_id = audios[0]['id']
@@ -78,6 +88,8 @@ feat_matrix = np.array(feat_list_list)
 # print(f"feat_matrix is {feat_matrix}")
 
 #normalising duration_ms and tempo, indices 0 and 1 since id is no longer present
+#even if the user chooses to exclude key, mode, etc. it shouldn't affect the indexing here since duration
+#and tempo come before those features
 #DO NOT forget to include and normalise target song too
 for index in range(2):
     values = [target_feats_array[index]]
