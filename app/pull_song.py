@@ -9,7 +9,7 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
 #pull target song, returns song ID in a dictionary
-def pull_target_track(sp, id_dict, track_url):
+def pull_target_track(sp, id_dict : dict, track_url : str):
     target_track = sp.track(track_url)
     track_name = target_track["name"]
     track_id = target_track["id"]
@@ -17,7 +17,7 @@ def pull_target_track(sp, id_dict, track_url):
     return track_name, id_dict
 
 #pull target playlist
-def pull_playlist(sp, id_dict, playlist_url):
+def pull_playlist(sp, id_dict : dict, playlist_url : str):
     if "playlist" in playlist_url:
         target_playlist = sp.playlist(playlist_url)
         playlist_name = target_playlist["name"]
@@ -38,7 +38,7 @@ def pull_playlist(sp, id_dict, playlist_url):
             id_dict["playlist tracks"][items[count]["name"]] = items[count]["id"]
     return playlist_name, id_dict
 
-def run_pull_song(track_url, playlist_url):
+def run_pull_song(track_url : str, playlist_url :str):
     #authorise
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLIENT_ID"],
                                                    client_secret=os.environ["SPOTIPY_CLIENT_SECRET"],

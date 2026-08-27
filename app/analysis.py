@@ -13,7 +13,7 @@ manual_weighting = True
 
 ######################
 
-def analysis_output(exclude_music_keys, manual_weighting):
+def analysis_output(exclude_music_keys : bool, manual_weighting : bool):
 
     id_dict, audios = run_pull_song("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C", "https://open.spotify.com/album/0A9bRihBwAmfudignnjtXL")
 
