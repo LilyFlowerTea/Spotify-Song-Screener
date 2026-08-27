@@ -7,5 +7,14 @@
 <body>
     <h1>Spotify Song Recommender</h1>
     <p>My website is working.</p>
+    <form action = "/hello" method = "post">
+        <input type = "text" name = "name">
+        <button id = "submission" type = "submit">Submit</button>
+    </form>
+
+    <p id="output">Nothing has happened yet.</p>
+
+<script src="{{ url_for('static', path='script.js') }}"></script>
+
 </body>
 </html>
