@@ -17,11 +17,26 @@ def pull_target_track(sp, id_dict, track_url):
     return track_name, id_dict
 
 #pull target playlist
-def pull_playlist(sp, playlist_url):
-    target_playlist = sp.playlist(playlist_url)
-    playlist_name = target_playlist["name"]
-    results = sp.playlist_items(playlist_url)
-    return playlist_name, results
+def pull_playlist(sp, id_dict, playlist_url):
+    if "playlist" in playlist_url:
+        target_playlist = sp.playlist(playlist_url)
+        playlist_name = target_playlist["name"]
+        results = sp.playlist_items(playlist_url)
+        # Collect playlist track IDs and names
+        for obj in results["items"]:
+            track = obj["item"]
+            track_id = track["id"]
+            id_dict["playlist tracks"][track["name"]] = track_id
+            # Line below is no longer necessary, just reverse id_dict to get song names
+            # Could be used if I wanted artist name as well
+            # name_list.append((track['name'], track['artists'][0]['name']))
+    elif "album" in playlist_url:
+        target_playlist = sp.album_tracks(playlist_url)
+        playlist_name = sp.album(playlist_url)["name"]
+        items = target_playlist["items"]
+        for count in range(len(items)):
+            id_dict["playlist tracks"][items[count]["name"]] = items[count]["id"]
+    return playlist_name, id_dict
 
 def run_pull_song(track_url, playlist_url):
     #authorise
@@ -35,16 +50,7 @@ def run_pull_song(track_url, playlist_url):
     id_dict = {"target" : {}, "playlist tracks" : {}}
 
     track_name, id_dict = pull_target_track(sp, id_dict, track_url)
-    playlist_name, results = pull_playlist(sp, playlist_url)
-
-    #Collect playlist track IDs and names
-    for obj in results["items"]:
-        track = obj["item"]
-        track_id = track["id"]
-        id_dict["playlist tracks"][track["name"]] = track_id
-        # No longer necessary, just reverse id_dict to get song names
-        # Could be used if I wanted artist name as well
-        # name_list.append((track['name'], track['artists'][0]['name']))
+    playlist_name, results = pull_playlist(sp, id_dict, playlist_url)
 
     ids = [value for d in id_dict.values() for value in d.values()]
 

@@ -15,7 +15,7 @@ manual_weighting = True
 
 def analysis_output(exclude_music_keys, manual_weighting):
 
-    id_dict, audios = run_pull_song("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C", "https://open.spotify.com/playlist/1LT8KdqwwTuSgLHXy4oK45")
+    id_dict, audios = run_pull_song("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C", "https://open.spotify.com/album/0A9bRihBwAmfudignnjtXL")
 
     #use this for custom ordering of features
     feature_list = ["id", "duration_ms", "tempo", "key", "mode", "time_signature", "acousticness",
