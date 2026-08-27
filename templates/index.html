@@ -6,13 +6,15 @@
 
 <body>
     <h1>Spotify Song Recommender</h1>
-    <p>My website is working.</p>
+<!--    create submission field -->
     <form action = "/hello" method = "post">
-        <input type = "text" name = "name">
-        <button id = "submission" type = "submit">Submit</button>
+        <input id = "name" type = "text" name = "name">
+        <button id = "submission" type = "button">Submit</button>
     </form>
 
-    <p id="output">Nothing has happened yet.</p>
+    <p id="output">JavaScript is inactive :(.</p>
+
+    <p id = "greeting">Hi</p>
 
 <script src="{{ url_for('static', path='script.js') }}"></script>
 
