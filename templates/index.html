@@ -6,15 +6,23 @@
 
 <body>
     <h1>Spotify Song Recommender</h1>
+    <p>Please enter your target song URL below:</p>
 <!--    create submission field -->
-    <form action = "/hello" method = "post">
-        <input id = "name" type = "text" name = "name">
-        <button id = "submission" type = "button">Submit</button>
+    <form action = "/analysis" method = "post">
+        <input id = "target song url" type = "text" name = "name">
+        <button id = "target song submission" type = "button">Submit</button>
     </form>
 
-    <p id="output">JavaScript is inactive :(.</p>
+    <p id = "target_song_output">Target song URL appears here</p>
 
-    <p id = "greeting">Hi</p>
+    <p>Please enter your target playlist URL below:</p>
+<!--    create submission field -->
+    <form action = "/analysis" method = "post">
+        <input id = "playlist url" type = "text" name = "name">
+        <button id = "playlist submission" type = "button">Submit</button>
+    </form>
+
+    <p id = "playlist_output">Playlist URL appears here</p>
 
 <script src="{{ url_for('static', path='script.js') }}"></script>
 

@@ -5,9 +5,10 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-#setting this using Pydantic, not entirely sure how this works
+#setting this using Pydantic, essentially creates a new meta-object type containing the listed objects
 class NameReq(BaseModel):
-    name : str
+    target_song_url : str
+    # playlist_url : str
 
 #pointing to the html page that builds the webpage
 templates = Jinja2Templates(directory="templates")
@@ -23,8 +24,10 @@ def home(request: Request):
     )
 
 #this is the output returned to be printed on the webpage
-@app.post("/hello")
-def greet(data : NameReq):
-    return {"message" : f"Sup {data.name}"}
+@app.post("/analysis")
+def analysis(data : NameReq):
+    return {"target_song_url" : f"Your target song is {data.target_song_url}"
+        # ,"playlist_url" : f"Your target playlist is {data.playlist_url}"
+            }
 
 # uvicorn app.main:app --reload
