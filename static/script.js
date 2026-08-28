@@ -1,10 +1,8 @@
 // confirm js is active
 console.log("Hello from JavaScript!");
-console.log("NEW VERSION");
 
 // monitor buttons for clicks
 const submit_button = document.getElementById("data_submission");
-console.log(submit_button);
 
 // main event 1
 submit_button.addEventListener("click", async function(){

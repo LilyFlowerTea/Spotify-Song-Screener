@@ -1,5 +1,5 @@
 #make sure to grab the data from pull_song.py
-from pull_song import run_pull_song
+from .pull_song import run_pull_song
 
 # time for some maths
 import numpy as np
@@ -13,9 +13,13 @@ manual_weighting = True
 
 ######################
 
-def analysis_output(exclude_music_keys : bool, manual_weighting : bool):
+def analysis_output(target_song_url : str,
+                    playlist_url : str,
+                    # exclude_music_keys : bool,
+                    # manual_weighting : bool
+                    ):
 
-    id_dict, audios = run_pull_song("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C", "https://open.spotify.com/album/0A9bRihBwAmfudignnjtXL")
+    track_name, playlist_name, id_dict, audios = run_pull_song(target_song_url, playlist_url)
 
     #use this for custom ordering of features
     feature_list = ["id", "duration_ms", "tempo", "key", "mode", "time_signature", "acousticness",
@@ -33,8 +37,7 @@ def analysis_output(exclude_music_keys : bool, manual_weighting : bool):
     weight_array = np.ones(len(feature_list) - 1)
 
     #extract and organise target song features
-    target_id = audios[0]['id']
-    target_feats = [audios[0][key] for key in feature_list[1:]]
+    target_song_feats = [audios[0][key] for key in feature_list[1:]]
 
     #id_array is separate since NumPy only accepts numbers
     id_list = []
@@ -50,7 +53,7 @@ def analysis_output(exclude_music_keys : bool, manual_weighting : bool):
         reorder_list = []
 
     #vectors assemble
-    target_feats_array = np.array(target_feats)
+    target_feats_array = np.array(target_song_feats)
     feat_matrix = np.array(feat_list_list)
 
     #normalising duration_ms and tempo, indices 0 and 1 since id is no longer present
@@ -77,7 +80,11 @@ def analysis_output(exclude_music_keys : bool, manual_weighting : bool):
     #format into a table for easy viewing
     distance_table = pd.DataFrame(assigned_distances, columns = ["Song", "Distance"])
     distance_table_sorted = distance_table.sort_values("Distance")
+    #json conversion for export
+    distance_table_json = distance_table.to_json()
+    distance_table_sorted_json = distance_table_sorted.to_json()
     distance_table_sorted.index = range(1, len(distance_table_sorted) + 1)
-    return distance_table, distance_table_sorted
-
-print(analysis_output(exclude_music_keys, manual_weighting))
+    return (track_name, 
+            playlist_name,
+            distance_table_json,
+            distance_table_sorted_json)
