@@ -4,6 +4,30 @@ console.log("Hello from JavaScript!");
 // monitor buttons for clicks
 const submit_button = document.getElementById("data_submission");
 
+const test = document.getElementById("test_text")
+
+function jsonToTable(data) {
+    if (!data) return;
+
+    const table = document.createElement("table");
+    const thead = document.createElement("thead");
+    const tbody = document.createElement("tbody");
+    const row = document.createElement("tr")
+
+    table.appendChild(tbody)
+    const distance_table = document.getElementById("distance_table")
+    distance_table.appendChild(table)
+
+    const headers = Object.keys(data)
+    console.log(headers)
+    test.textContent = headers
+
+    for (const header of headers){
+        let header = headers[header]
+        
+    }
+}
+
 // main event 1
 submit_button.addEventListener("click", async function(){
     // pull the str entered into the submission field
@@ -29,5 +53,10 @@ submit_button.addEventListener("click", async function(){
     // overwrite text on page
     target_song_output.textContent = data.target_song_url
     playlist_output.textContent = data.playlist_url
+    const distance_table = data.distance_table
+    const ranked_table = data.ranked_table
+    console.log(distance_table)
+    console.log(typeof distance_table)
+    jsonToTable(distance_table)
     console.log("complete")
 })

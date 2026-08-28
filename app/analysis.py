@@ -81,10 +81,13 @@ def analysis_output(target_song_url : str,
     distance_table = pd.DataFrame(assigned_distances, columns = ["Song", "Distance"])
     distance_table_sorted = distance_table.sort_values("Distance")
     #json conversion for export
-    distance_table_json = distance_table.to_json()
-    distance_table_sorted_json = distance_table_sorted.to_json()
+    distance_table_json = distance_table.to_dict()
+    distance_table_sorted_json = distance_table_sorted.to_dict()
     distance_table_sorted.index = range(1, len(distance_table_sorted) + 1)
-    return (track_name, 
+    return (track_name,
             playlist_name,
             distance_table_json,
             distance_table_sorted_json)
+
+# print(analysis_output("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C?autoplay_ok=1",
+                # "https://open.spotify.com/playlist/1LT8KdqwwTuSgLHXy4oK45"))
