@@ -27,8 +27,8 @@ def home(request: Request):
 from .analysis import analysis_output
 
 #this is the output returned to be printed on the webpage
-@app.post("/analysis")
-def analysis(data : NameReq):
+@app.post("/data request")
+def processing(data : NameReq):
     target_song_name, playlist_name, unsorted_data_json, sorted_data_json = analysis_output(data.target_song_url, data.playlist_url)
     return {"target_song_url" : f"Your target song is: {target_song_name}",
             "playlist_url" : f"Your target playlist is: {playlist_name}",

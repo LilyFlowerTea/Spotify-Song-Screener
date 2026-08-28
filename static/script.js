@@ -55,7 +55,7 @@ submit_button.addEventListener("click", async function() {
     const target_song_url = document.getElementById("target_song_url").value
     const playlist_url = document.getElementById("playlist_url").value
     // send off data to main.py through FastAPI
-    const response = await fetch("/analysis", {
+    const response = await fetch("/data request", {
         method : "POST",
         body : JSON.stringify({
             target_song_url,
