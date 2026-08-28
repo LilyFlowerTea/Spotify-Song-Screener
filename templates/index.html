@@ -6,6 +6,21 @@
 
 <body>
     <h1>Spotify Song Recommender</h1>
-    <p>My website is working.</p>
+    <p>Please enter your target song URL below:</p>
+<!--    create submission field -->
+    <form action = "/analysis" method = "post">
+        <input id = "target_song_url" type = "text" name = "target_song_url">
+        <p>Please enter your target playlist URL below:</p>
+        <input id = "playlist_url" type = "text" name = "playlist_url">
+        <button id = "data_submission" type = "button">Submit</button>
+    </form>
+
+    <p id = "target_song_output">Target song URL appears here</p>
+    <p id = "playlist_output">Playlist URL appears here</p>
+    <div id = "distance_table">Distance Table goes here</div>
+    <div id = "sorted_table">Sorted Distance Table goes here</div>
+
+<script src="{{ url_for('static', path='script.js') }}"></script>
+
 </body>
 </html>

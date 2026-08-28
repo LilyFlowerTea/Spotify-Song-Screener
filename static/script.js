@@ -1,0 +1,79 @@
+// confirm js is active
+console.log("Hello from JavaScript!");
+
+// monitor buttons for clicks
+const submit_button = document.getElementById("data_submission");
+
+function jsonToTable(data, elementId) {
+    if (!data) return;
+
+    const table = document.createElement("table");
+    const thead = document.createElement("thead");
+    const tbody = document.createElement("tbody");
+    const row = document.createElement("tr")
+
+    // make header row
+    const headers = ["Song", "Distance"]
+    for (const header of headers) {
+        const head = document.createElement("th")
+        head.textContent = header
+        row.appendChild(head)
+        }
+    thead.appendChild(row)
+    table.appendChild(thead)
+    console.log("header row complete")
+
+    for (let data_row = 0; data_row < data.length; data_row++) {
+        const row = document.createElement("tr")
+        const song_name = document.createElement("td")
+        const song_data = document.createElement("td")
+        const song_name_array = data[data_row][0]
+        const song_data_array = data[data_row][1]
+        song_name.textContent = song_name_array
+        song_data.textContent = song_data_array
+        row.appendChild(song_name)
+        row.appendChild(song_data)
+        tbody.appendChild(row)
+        console.log("row " + data_row + " complete")
+    }
+
+    table.appendChild(tbody)
+
+    const to_be_tabled = document.getElementById(elementId)
+    to_be_tabled.appendChild(table)
+}
+
+// main event
+submit_button.addEventListener("click", async function() {
+    // Wait times can be long, so I write this to console to confirm it's active
+    console.log("URLs submitted")
+    // pull the str entered into the submission field
+    const target_song_url = document.getElementById("target_song_url").value
+    const playlist_url = document.getElementById("playlist_url").value
+    // send off data to main.py through FastAPI
+    const response = await fetch("/analysis", {
+        method : "POST",
+        body : JSON.stringify({
+            target_song_url,
+            playlist_url
+        }),
+        headers : {
+            "Content-Type" : "application/json"
+        }
+    })
+    console.log(response)
+    // assign text to be rewritten
+    const target_song_output = document.getElementById("target_song_output")
+    const playlist_output = document.getElementById("playlist_output")
+    // assign response
+    const data = await response.json()
+
+    // overwrite text on page
+    target_song_output.textContent = data.target_song_url
+    playlist_output.textContent = data.playlist_url
+    const distance_data = JSON.parse(data.distance_data)["Unsorted data"]
+    const sorted_data = JSON.parse(data.sorted_data)["Sorted data"]
+    jsonToTable(distance_data, "distance_table")
+    jsonToTable(sorted_data, "sorted_table")
+    console.log("complete")
+})
