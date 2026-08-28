@@ -87,6 +87,8 @@ def analysis_output(target_song_url : str,
             unsorted_data_json,
             sorted_data_json)
 
+    # don't need pandas for this, just convert into json above
+
     #format into a table for easy viewing
     distance_table = pd.DataFrame(assigned_distances, columns = ["Song", "Distance"])
     distance_table_sorted = distance_table.sort_values("Distance")

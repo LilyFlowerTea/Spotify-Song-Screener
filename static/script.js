@@ -13,7 +13,7 @@ function jsonToTable(data, elementId) {
     const row = document.createElement("tr")
 
     // make header row
-    const headers = ["Song", "Distance"]
+    const headers = ["Index", "Song", "Distance"]
     for (const header of headers) {
         const head = document.createElement("th")
         head.textContent = header
@@ -25,12 +25,16 @@ function jsonToTable(data, elementId) {
 
     for (let data_row = 0; data_row < data.length; data_row++) {
         const row = document.createElement("tr")
+        const index_num = document.createElement("td")
         const song_name = document.createElement("td")
         const song_data = document.createElement("td")
-        const song_name_array = data[data_row][0]
-        const song_data_array = data[data_row][1]
-        song_name.textContent = song_name_array
-        song_data.textContent = song_data_array
+        const index_num_num = data_row + 1
+        const song_name_name = data[data_row][0]
+        const song_data_data = data[data_row][1]
+        index_num.textContent = index_num_num
+        song_name.textContent = song_name_name
+        song_data.textContent = song_data_data
+        row.appendChild(index_num)
         row.appendChild(song_name)
         row.appendChild(song_data)
         tbody.appendChild(row)
