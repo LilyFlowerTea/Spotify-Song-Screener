@@ -4,6 +4,7 @@ from .pull_song import run_pull_song
 # time for some maths
 import numpy as np
 import pandas as pd
+import json as js
 
 ###USER VARIABLES HERE
 
@@ -77,17 +78,28 @@ def analysis_output(target_song_url : str,
     reverse_id_dict = {id_str : name for name, id_str in id_dict_dicts[1].items()}
     assigned_distances = [[reverse_id_dict[id], float(distance)] for id, distance in zip(id_list, distances)]
 
+    assigned_distances_sorted = sorted(assigned_distances, key = lambda x : x[1])
+
+    unsorted_data_json = js.dumps({"Unsorted data" : assigned_distances})
+    sorted_data_json = js.dumps({"Sorted data" : assigned_distances_sorted})
+    return (track_name,
+            playlist_name,
+            unsorted_data_json,
+            sorted_data_json)
+
     #format into a table for easy viewing
     distance_table = pd.DataFrame(assigned_distances, columns = ["Song", "Distance"])
     distance_table_sorted = distance_table.sort_values("Distance")
+    # reindex both tables so the js doesn't break
+    # distance_table.index = range(1, len(distance_table) + 1)
+    # distance_table_sorted.index = range(1, len(distance_table_sorted) + 1)
     #json conversion for export
     distance_table_json = distance_table.to_dict()
     distance_table_sorted_json = distance_table_sorted.to_dict()
-    distance_table_sorted.index = range(1, len(distance_table_sorted) + 1)
     return (track_name,
             playlist_name,
             distance_table_json,
             distance_table_sorted_json)
 
 # print(analysis_output("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C?autoplay_ok=1",
-                # "https://open.spotify.com/playlist/1LT8KdqwwTuSgLHXy4oK45"))
+#                 "https://open.spotify.com/playlist/1LT8KdqwwTuSgLHXy4oK45"))
