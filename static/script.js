@@ -53,13 +53,15 @@ submit_button.addEventListener("click", async function() {
     console.log("URLs submitted")
     // pull the str entered into the submission field
     const target_song_url = document.getElementById("target_song_url").value
-    const playlist_url = document.getElementById("playlist_url").value
+    const comparison_url = document.getElementById("comparison_url").value
+    const method = document.getElementById("method").value
     // send off data to main.py through FastAPI
-    const response = await fetch("/data request", {
+    const response = await fetch("/data_request", {
         method : "POST",
         body : JSON.stringify({
             target_song_url,
-            playlist_url
+            comparison_url,
+            method
         }),
         headers : {
             "Content-Type" : "application/json"
@@ -68,13 +70,13 @@ submit_button.addEventListener("click", async function() {
     console.log(response)
     // assign text to be rewritten
     const target_song_output = document.getElementById("target_song_output")
-    const playlist_output = document.getElementById("playlist_output")
+    const comparison_output = document.getElementById("comparison_output")
     // assign response
     const data = await response.json()
 
     // overwrite text on page
     target_song_output.textContent = data.target_song_url
-    playlist_output.textContent = data.playlist_url
+    comparison_output.textContent = data.playlist_url
     const distance_data = JSON.parse(data.distance_data)["Unsorted data"]
     const sorted_data = JSON.parse(data.sorted_data)["Sorted data"]
     jsonToTable(distance_data, "distance_table")

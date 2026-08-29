@@ -1,5 +1,5 @@
 #make sure to grab the data from playlist_compare.py
-from pull_data_by_id import pull_data_by_id
+from .pull_data_by_id import pull_data_by_id
 
 # time for some maths
 import numpy as np
@@ -83,10 +83,10 @@ def analysis_output(target_song_url : str,
 
     unsorted_data_json = js.dumps({"Unsorted data" : assigned_distances})
     sorted_data_json = js.dumps({"Sorted data" : assigned_distances_sorted})
-    # return (track_name,
-    #         playlist_name,
-    #         unsorted_data_json,
-    #         sorted_data_json)
+    return (track_name,
+            comparison_name,
+            unsorted_data_json,
+            sorted_data_json)
 
     # don't need pandas for this, just convert into json above
 
@@ -104,5 +104,6 @@ def analysis_output(target_song_url : str,
             distance_table,
             distance_table_sorted)
 
-print(analysis_output("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C?autoplay_ok=1",
-                "https://open.spotify.com/artist/2eRNMtoi82UZUuaL6naDjA", "artist"))
+# from pull_data_by_id import ComparisonMethod
+# print(analysis_output("https://open.spotify.com/track/4lriIG2vNqwDWzOj2I9rtj",
+#                 "https://open.spotify.com/artist/5j4HeCoUlzhfWtjAfM1acR", ComparisonMethod.ARTIST))

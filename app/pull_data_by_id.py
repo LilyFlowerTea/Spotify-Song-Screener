@@ -38,19 +38,19 @@ def pull_ids(track_url : str, comparison_url : str, method : ComparisonMethod):
 
     # Need to take a user input for the function condition that tells it which method to use,
     # i.e. playlist comparison, artist comparison (checking tracks by an artist), or random recommendation
-    if method == ComparisonMethod.PLAYLIST.value:
-        from playlist_compare import pull_playlist
+    if method == ComparisonMethod.PLAYLIST:
+        from .playlist_compare import pull_playlist
         comparison_name, id_dict = pull_playlist(sp, id_dict, comparison_url)
-    elif method == ComparisonMethod.ARTIST.value:
-        from artist_compare import pull_artist
-        from playlist_compare import pull_playlist
+    elif method == ComparisonMethod.ARTIST:
+        from .artist_compare import pull_artist
+        from .playlist_compare import pull_playlist
         # get album ids
         comparison_name, album_ids = pull_artist(sp, comparison_url)
         # now iterate using pull_playlist to turn album ids into track ids for feature extraction
         for counter, album in enumerate(album_ids):
+            # pull_playlist requires a full URL so we construct it here
             album_url = "https://open.spotify.com/album/"+album
             playlist_name, id_dict = pull_playlist(sp, id_dict, album_url)
-            print(playlist_name)
 
     ids = [value for d in id_dict.values() for value in d.values()]
 

@@ -2,13 +2,16 @@ from pydantic import BaseModel
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from enum import Enum
+from .pull_data_by_id import ComparisonMethod
 
 app = FastAPI()
 
 #setting this using Pydantic, essentially creates a new meta-object type containing the listed objects
 class NameReq(BaseModel):
     target_song_url : str
-    playlist_url : str
+    comparison_url : str
+    method : ComparisonMethod
 
 #pointing to the html page that builds the webpage
 templates = Jinja2Templates(directory="templates")
@@ -27,11 +30,11 @@ def home(request: Request):
 from .analysis import analysis_output
 
 #this is the output returned to be printed on the webpage
-@app.post("/data request")
+@app.post("/data_request")
 def processing(data : NameReq):
-    target_song_name, playlist_name, unsorted_data_json, sorted_data_json = analysis_output(data.target_song_url, data.playlist_url)
+    target_song_name, comparison_name, unsorted_data_json, sorted_data_json = analysis_output(data.target_song_url, data.comparison_url, data.method)
     return {"target_song_url" : f"Your target song is: {target_song_name}",
-            "playlist_url" : f"Your target playlist is: {playlist_name}",
+            "playlist_url" : f"Your target comparison is: {comparison_name}",
             "distance_data" : unsorted_data_json,
             "sorted_data" : sorted_data_json
             }
