@@ -41,8 +41,16 @@ def pull_ids(track_url : str, comparison_url : str, method : ComparisonMethod):
     if method == ComparisonMethod.PLAYLIST.value:
         from playlist_compare import pull_playlist
         comparison_name, id_dict = pull_playlist(sp, id_dict, comparison_url)
-    # elif method == ComparisonMethod.ARTIST:
-    #     from artist_compare import pull_artist
+    elif method == ComparisonMethod.ARTIST.value:
+        from artist_compare import pull_artist
+        from playlist_compare import pull_playlist
+        # get album ids
+        comparison_name, album_ids = pull_artist(sp, comparison_url)
+        # now iterate using pull_playlist to turn album ids into track ids for feature extraction
+        for counter, album in enumerate(album_ids):
+            album_url = "https://open.spotify.com/album/"+album
+            playlist_name, id_dict = pull_playlist(sp, id_dict, album_url)
+            print(playlist_name)
 
     ids = [value for d in id_dict.values() for value in d.values()]
 

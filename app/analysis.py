@@ -105,4 +105,4 @@ def analysis_output(target_song_url : str,
             distance_table_sorted)
 
 print(analysis_output("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C?autoplay_ok=1",
-                "https://open.spotify.com/playlist/1LT8KdqwwTuSgLHXy4oK45", "playlist"))
+                "https://open.spotify.com/artist/2eRNMtoi82UZUuaL6naDjA", "artist"))
