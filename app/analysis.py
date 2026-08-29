@@ -1,5 +1,5 @@
-#make sure to grab the data from pull_song.py
-from .pull_song import run_pull_song
+#make sure to grab the data from playlist_compare.py
+from .pull_data_by_id import pull_data_by_id
 
 # time for some maths
 import numpy as np
@@ -15,12 +15,13 @@ manual_weighting = True
 ######################
 
 def analysis_output(target_song_url : str,
-                    playlist_url : str,
+                    comparison_url : str,
+                    method : str,
                     # exclude_music_keys : bool,
                     # manual_weighting : bool
                     ):
 
-    track_name, playlist_name, id_dict, audios = run_pull_song(target_song_url, playlist_url)
+    track_name, comparison_name, id_dict, audios = pull_data_by_id(target_song_url, comparison_url, method)
 
     #use this for custom ordering of features
     feature_list = ["id", "duration_ms", "tempo", "key", "mode", "time_signature", "acousticness",
@@ -72,7 +73,7 @@ def analysis_output(target_song_url : str,
     dist_matrix = feat_matrix - target_feats_array
     distances = np.sqrt((weight_array * dist_matrix * dist_matrix).sum(axis = 1))
 
-    #match names with song IDs using id_dict from pull_song.py
+    #match names with song IDs using id_dict from playlist_compare.py
     id_dict_dicts = [dic for key, dic in id_dict.items() if isinstance(dic, dict)]
     #don't need the target track to be in the reversed dictionary so index to skip it
     reverse_id_dict = {id_str : name for name, id_str in id_dict_dicts[1].items()}
@@ -83,9 +84,11 @@ def analysis_output(target_song_url : str,
     unsorted_data_json = js.dumps({"Unsorted data" : assigned_distances})
     sorted_data_json = js.dumps({"Sorted data" : assigned_distances_sorted})
     return (track_name,
-            playlist_name,
+            comparison_name,
             unsorted_data_json,
             sorted_data_json)
+
+    # don't need pandas for this, just convert into json above
 
     #format into a table for easy viewing
     distance_table = pd.DataFrame(assigned_distances, columns = ["Song", "Distance"])
@@ -93,13 +96,14 @@ def analysis_output(target_song_url : str,
     # reindex both tables so the js doesn't break
     # distance_table.index = range(1, len(distance_table) + 1)
     # distance_table_sorted.index = range(1, len(distance_table_sorted) + 1)
-    #json conversion for export
-    distance_table_json = distance_table.to_dict()
-    distance_table_sorted_json = distance_table_sorted.to_dict()
+    #json conversion for export, ACTUALLY UNNECESSARY NOW
+    # distance_table_json = distance_table.to_dict()
+    # distance_table_sorted_json = distance_table_sorted.to_dict()
     return (track_name,
-            playlist_name,
-            distance_table_json,
-            distance_table_sorted_json)
+            comparison_name,
+            distance_table,
+            distance_table_sorted)
 
-# print(analysis_output("https://open.spotify.com/track/7s2kWabRM60W9I61HpKg8C?autoplay_ok=1",
-#                 "https://open.spotify.com/playlist/1LT8KdqwwTuSgLHXy4oK45"))
+# from pull_data_by_id import ComparisonMethod
+# print(analysis_output("https://open.spotify.com/track/4lriIG2vNqwDWzOj2I9rtj",
+#                 "https://open.spotify.com/artist/5j4HeCoUlzhfWtjAfM1acR", ComparisonMethod.ARTIST))

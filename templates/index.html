@@ -6,19 +6,22 @@
 
 <body>
     <h1>Spotify Song Recommender</h1>
-    <p>Please enter your target song URL below:</p>
 <!--    create submission field -->
-    <form action = "/analysis" method = "post">
+    <form action = "/data_request" method = "post">
+        <p>Please enter your target song URL below:</p>
         <input id = "target_song_url" type = "text" name = "target_song_url">
-        <p>Please enter your target playlist URL below:</p>
-        <input id = "playlist_url" type = "text" name = "playlist_url">
+        <p>Please enter the full URL of your comparison object (playlist/album, artist) below:</p>
+        <input id = "comparison_url" type = "text" name = "comparison_url">
+        <p>Please type either playlist or artist below:</p>
+        <input id = "method" type = "text" name = "playlist_url">
         <button id = "data_submission" type = "button">Submit</button>
     </form>
 
     <p id = "target_song_output">Target song URL appears here</p>
-    <p id = "playlist_output">Playlist URL appears here</p>
-    <div id = "distance_table">Distance Table goes here</div>
-    <div id = "sorted_table">Sorted Distance Table goes here</div>
+    <p id = "comparison_output">Playlist URL appears here</p>
+    <div id = "distance_table">Distance Table:</div>
+    <br>
+    <div id = "sorted_table">Sorted Distance Table:</div>
 
 <script src="{{ url_for('static', path='script.js') }}"></script>
 
