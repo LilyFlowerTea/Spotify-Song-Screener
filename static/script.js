@@ -75,8 +75,8 @@ submit_button.addEventListener("click", async function() {
     const data = await response.json()
 
     // overwrite text on page
-    target_song_output.textContent = data.target_song_url
-    comparison_output.textContent = data.playlist_url
+    target_song_output.textContent = data.target_song_name
+    comparison_output.textContent = data.comparison_name
     const distance_data = JSON.parse(data.distance_data)["Unsorted data"]
     const sorted_data = JSON.parse(data.sorted_data)["Sorted data"]
     jsonToTable(distance_data, "distance_table")

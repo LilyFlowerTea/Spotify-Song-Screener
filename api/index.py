@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from enum import Enum
-from .pull_data_by_id import ComparisonMethod
+from algorithms.pull_data_by_id import ComparisonMethod
 
 app = FastAPI()
 
@@ -27,16 +27,16 @@ def home(request: Request):
     )
 
 #pull algorithm function
-from .analysis import analysis_output
+from algorithms.analysis import analysis_output
 
 #this is the output returned to be printed on the webpage
 @app.post("/data_request")
 def processing(data : NameReq):
     target_song_name, comparison_name, unsorted_data_json, sorted_data_json = analysis_output(data.target_song_url, data.comparison_url, data.method)
-    return {"target_song_url" : f"Your target song is: {target_song_name}",
-            "playlist_url" : f"Your target comparison is: {comparison_name}",
+    return {"target_song_name" : f"Your target song is: {target_song_name}",
+            "comparison_name" : f"Your target comparison is: {comparison_name}",
             "distance_data" : unsorted_data_json,
             "sorted_data" : sorted_data_json
             }
 
-# uvicorn app.main:app --reload
+# uvicorn api.index:app --reload
