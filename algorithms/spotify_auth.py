@@ -9,7 +9,10 @@ load_dotenv(find_dotenv())
 
 def spotify_auth():
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLIENT_ID"],
-                                               client_secret=os.environ["SPOTIPY_CLIENT_SECRET"],
-                                               redirect_uri=os.environ["SPOTIPY_REDIRECT_URI"],
-                                               scope="playlist-read-private"))
+                                                   client_secret=os.environ["SPOTIPY_CLIENT_SECRET"],
+                                                   redirect_uri=os.environ["SPOTIPY_REDIRECT_URI"],
+                                                   scope="playlist-read-private",
+                                                   open_browser = True,
+                                                   # cache_handler =
+                                                   ))
     return sp
