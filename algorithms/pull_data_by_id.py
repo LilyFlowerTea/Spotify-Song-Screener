@@ -36,7 +36,7 @@ def pull_ids(track_url : str, comparison_url : str, method : ComparisonMethod):
     # i.e. playlist comparison, artist comparison (checking tracks by an artist), or random recommendation
     if method == ComparisonMethod.PLAYLIST:
         from .playlist_compare import pull_playlist
-        comparison_name, id_dict = pull_playlist(sp, id_dict, comparison_url)
+        comparison_name, id_dict, comparison_type = pull_playlist(sp, id_dict, comparison_url)
     elif method == ComparisonMethod.ARTIST:
         from .artist_compare import pull_artist
         from .playlist_compare import pull_playlist
@@ -46,11 +46,14 @@ def pull_ids(track_url : str, comparison_url : str, method : ComparisonMethod):
         for counter, album in enumerate(album_ids):
             # pull_playlist requires a full URL so we construct it here
             album_url = "https://open.spotify.com/album/"+album
-            playlist_name, id_dict = pull_playlist(sp, id_dict, album_url)
+            playlist_name, id_dict, comparison_type = pull_playlist(sp, id_dict, album_url)
+        #write comparison_type variable at the end or it would be
+        #overwritten by actions in playlist_compare.py
+        comparison_type = "artist"
 
     ids = [value for d in id_dict.values() for value in d.values()]
 
-    return track_name, comparison_name, id_dict, ids
+    return track_name, comparison_name, id_dict, ids, comparison_type
 
 def parcelling_and_extraction(ids):
     #Parcelling out the track IDs into 5s and also formatting so they are accepted by audio feature extraction API
@@ -98,6 +101,12 @@ def parcelling_and_extraction(ids):
     return audios
 
 def pull_data_by_id(track_url : str, comparison_url : str, method : ComparisonMethod):
-    track_name, comparison_name, id_dict, ids = pull_ids(track_url, comparison_url, method)
+    (track_name,
+     comparison_name,
+     id_dict,
+     ids,
+     comparison_type) = pull_ids(track_url,
+                                 comparison_url,
+                                 method)
     audios = parcelling_and_extraction(ids)
-    return track_name, comparison_name, id_dict, audios
+    return track_name, comparison_name, id_dict, audios, comparison_type

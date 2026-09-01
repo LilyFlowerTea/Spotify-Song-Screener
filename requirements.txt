@@ -1,5 +1,5 @@
 spotipy==2.26.0
-dotenv
+python-dotenv
 pandas
 requests
 numpy
@@ -8,5 +8,3 @@ uvicorn
 jinja2
 python-multipart
 pydantic
-json
-enum

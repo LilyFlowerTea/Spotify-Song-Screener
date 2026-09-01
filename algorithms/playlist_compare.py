@@ -1,6 +1,7 @@
 #pull target playlist
 def pull_playlist(sp, id_dict : dict, playlist_url : str):
     if "playlist" in playlist_url:
+        comparison_type = "playlist"
         target_playlist = sp.playlist(playlist_url)
         playlist_name = target_playlist["name"]
         results = sp.playlist_items(playlist_url)
@@ -13,9 +14,10 @@ def pull_playlist(sp, id_dict : dict, playlist_url : str):
             # Could be used if I wanted artist name as well
             # name_list.append((track['name'], track['artists'][0]['name']))
     elif "album" in playlist_url:
+        comparison_type = "album"
         target_playlist = sp.album_tracks(playlist_url)
         playlist_name = sp.album(playlist_url)["name"]
         items = target_playlist["items"]
         for count in range(len(items)):
             id_dict["comparison tracks"][items[count]["name"]] = items[count]["id"]
-    return playlist_name, id_dict
+    return playlist_name, id_dict, comparison_type
