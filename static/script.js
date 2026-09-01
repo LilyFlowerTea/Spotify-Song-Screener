@@ -2,6 +2,7 @@
 console.log("Hello from JavaScript!");
 
 // monitor buttons for clicks
+const spotify_login_button = document.getElementById("spotify_redirect");
 const submit_button = document.getElementById("data_submission");
 
 function jsonToTable(data, elementId) {
@@ -47,9 +48,15 @@ function jsonToTable(data, elementId) {
     to_be_tabled.appendChild(table)
 }
 
+// Spotify login
+spotify_login_button.addEventListener("click", async function(){
+    console.log("Spotify login activated")
+    window.location.href = "/login"
+});
+
 // main event
 submit_button.addEventListener("click", async function() {
-    // Wait times can be long, so I write this to console to confirm it's active
+    // Wait times can be long, so I output this to console to confirm it's active
     console.log("URLs submitted")
     // pull the str entered into the submission field
     const target_song_url = document.getElementById("target_song_url").value

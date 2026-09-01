@@ -77,8 +77,9 @@ async def login():
     auth_url = auth_access()
     return RedirectResponse(auth_url)
 
-@app.get("/")
+@app.get("/callback")
 def callback(code, state):
+    print("start")
     if code == None:
         return
     else:
@@ -98,7 +99,9 @@ def callback(code, state):
                       headers = headers
         )
         access_data = access_response.json()
+    print("complete")
+    print(access_data["access_token"])
     return access_data["access_token"], access_data["refresh_token"]
 
 
-# uvicorn api.index:app --reload
+# uvicorn api.index:app --reload --port 1234
