@@ -14,14 +14,14 @@ manual_weighting = True
 
 ######################
 
-def analysis_output(target_song_url : str,
-                    comparison_url : str,
-                    method : str,
+def analysis_output(id_dict : dict,
+                    audios : list,
                     # exclude_music_keys : bool,
                     # manual_weighting : bool
                     ):
 
-    track_name, comparison_name, id_dict, audios = pull_data_by_id(target_song_url, comparison_url, method)
+    #old method, very convoluted
+    # track_name, comparison_name, id_dict, audios = pull_data_by_id(target_song_url, comparison_url, method)
 
     #use this for custom ordering of features
     feature_list = ["id", "duration_ms", "tempo", "key", "mode", "time_signature", "acousticness",
@@ -83,9 +83,7 @@ def analysis_output(target_song_url : str,
 
     unsorted_data_json = js.dumps({"Unsorted data" : assigned_distances})
     sorted_data_json = js.dumps({"Sorted data" : assigned_distances_sorted})
-    return (track_name,
-            comparison_name,
-            unsorted_data_json,
+    return (unsorted_data_json,
             sorted_data_json)
 
     # don't need pandas for this, just convert into json above
