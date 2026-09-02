@@ -2,10 +2,34 @@
 <html>
 <head>
     <title>Spotify Recommender</title>
+    <link rel = "stylesheet" href = "/static/style.css">
 </head>
 
 <body>
     <h1>Spotify Song Recommender</h1>
+<!--    create authentication button -->
+    <form action = "/login" method = "get">
+        <p>Please log in to Spotify below, this is required to access private playlists:</p>
+        <button id = "spotify_redirect" type = "button">Log in to Spotify</button>
+    </form>
+    <p>Select your comparison method below:</p>
+    <div class = "method-selector">
+        <button class = "method-button active" data-method = "playlist/album">
+                Playlist/Album
+        </button>
+
+        <button class = "method-button" data-method = "artist">
+                Artist
+        </button>
+
+        <button class = "method-button" data-method = "random_recs">
+                Generate Recommendations
+        </button>
+
+        <button class = "method-button" data-method = "extra">
+                Extra
+        </button>
+    </div>
 <!--    create submission field -->
     <form action = "/data_request" method = "post">
         <p>Please enter your target song URL below:</p>

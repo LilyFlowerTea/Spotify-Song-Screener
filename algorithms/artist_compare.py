@@ -5,7 +5,7 @@
 def pull_artist(sp, artist_url):
     artist_name = sp.artist(artist_url)["name"]
     # increasing the limit above 10 seems to break the request, Spotify might not like that ig
-    artist_albums = sp.artist_albums(artist_url, include_groups = "album,song", limit = 1)
+    artist_albums = sp.artist_albums(artist_url, include_groups = "album,song", limit = 2)
     results = artist_albums["items"]
     # Collect album IDs
     album_ids = []

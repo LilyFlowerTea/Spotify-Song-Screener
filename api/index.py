@@ -1,8 +1,22 @@
-from pydantic import BaseModel
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
+
+from pydantic import BaseModel
 from enum import Enum
+from urllib.parse import urlencode
+
+import os
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+
+import redis
+import requests
+
 from algorithms.pull_data_by_id import ComparisonMethod
 
 app = FastAPI()
@@ -26,17 +40,51 @@ def home(request: Request):
         context={}
     )
 
-#pull algorithm function
+red = redis.from_url(
+    os.environ["REDIS_URL"],
+    decode_responses=True
+)
+red_cache = spotipy.RedisCacheHandler(red, key = "test_id")
+
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLIENT_ID"],
+                                                   client_secret=os.environ["SPOTIPY_CLIENT_SECRET"],
+                                                   redirect_uri=os.environ["SPOTIPY_REDIRECT_URI"],
+                                                   scope="playlist-read-private",
+                                                   open_browser = False,
+                                                   cache_handler = red_cache
+                                                   ))
+
+
+@app.get("/login")
+def login():
+    spotify_auth_url = sp.auth_manager.get_authorize_url()
+    return RedirectResponse(spotify_auth_url)
+
+@app.get("/callback")
+def callback(code):
+    sp.auth_manager.get_access_token(code)
+    return RedirectResponse("/")
+
+#pull algorithm functions
+from algorithms.pull_data_by_id import pull_data_by_id
 from algorithms.analysis import analysis_output
 
 #this is the output returned to be printed on the webpage
 @app.post("/data_request")
 def processing(data : NameReq):
-    target_song_name, comparison_name, unsorted_data_json, sorted_data_json = analysis_output(data.target_song_url, data.comparison_url, data.method)
+    (target_song_name,
+     comparison_name,
+     id_dict,
+     audios,
+     comparison_type) = pull_data_by_id(sp,
+                                        data.target_song_url,
+                                        data.comparison_url,
+                                        data.method)
+    unsorted_data_json, sorted_data_json = analysis_output(id_dict, audios)
     return {"target_song_name" : f"Your target song is: {target_song_name}",
-            "comparison_name" : f"Your target comparison is: {comparison_name}",
+            "comparison_name" : f"Your target comparison is tracks from the {comparison_type}: {comparison_name}",
             "distance_data" : unsorted_data_json,
             "sorted_data" : sorted_data_json
             }
 
-# uvicorn api.index:app --reload
+# uvicorn api.index:app --reload --port 1234
