@@ -3,7 +3,19 @@ console.log("Hello from JavaScript!");
 
 // monitor buttons for clicks
 const spotify_login_button = document.getElementById("spotify_redirect");
+const methodButtons = document.querySelectorAll(".method-button");
 const submit_button = document.getElementById("data_submission");
+
+methodButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      methodButtons.forEach(button => {
+          button.classList.remove("active")
+      });
+      button.classList.add("active")
+      const method = button.dataset.method;
+      console.log(method)
+    })
+})
 
 function jsonToTable(data, elementId) {
     if (!data) return;
