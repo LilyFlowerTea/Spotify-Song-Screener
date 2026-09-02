@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi import Response
 from fastapi.responses import RedirectResponse
 
 from pydantic import BaseModel
@@ -8,6 +9,8 @@ from enum import Enum
 from urllib.parse import urlencode
 
 import os
+import secrets
+import json
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
@@ -44,24 +47,42 @@ red = redis.from_url(
     os.environ["REDIS_URL"],
     decode_responses=True
 )
-red_cache = spotipy.RedisCacheHandler(red, key = "test_id")
 
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLIENT_ID"],
-                                                   client_secret=os.environ["SPOTIPY_CLIENT_SECRET"],
-                                                   redirect_uri=os.environ["SPOTIPY_REDIRECT_URI"],
-                                                   scope="playlist-read-private",
-                                                   open_browser = False,
-                                                   cache_handler = red_cache
-                                                   ))
+# create a spotify auth object for user logins, identified by a browser cookie
+def create_sp(red_cache):
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIPY_CLIENT_ID"],
+                                                       client_secret=os.environ["SPOTIPY_CLIENT_SECRET"],
+                                                       redirect_uri=os.environ["SPOTIPY_REDIRECT_URI"],
+                                                       scope="playlist-read-private",
+                                                       open_browser = False,
+                                                       cache_handler = red_cache
+                                                       ))
+    return sp
 
+#step 1 is to generate a cookie for the user's browser, to identify their Spotify account access
+@app.get("/login_to_cookie")
+def gen_cookie():
+    session_id = secrets.token_hex(16)
+    redirect = RedirectResponse("/cookie_to_spotify")
+    redirect.set_cookie(key = "mysession", value = session_id, max_age = 3600)
+    return redirect
 
-@app.get("/login")
-def login():
+#step 2 is to redirect to spotify login to generate the access token
+@app.get("/cookie_to_spotify")
+def login(request : Request):
+    cookie = request.cookies.get("mysession")
+    red_cache = spotipy.RedisCacheHandler(red, key = cookie)
+    sp = create_sp(red_cache)
     spotify_auth_url = sp.auth_manager.get_authorize_url()
     return RedirectResponse(spotify_auth_url)
 
+#step 3 is to get the access token, which should now be stored in
+# the Redis database during create_sp()
 @app.get("/callback")
-def callback(code):
+def callback(code, request : Request):
+    cookie = request.cookies.get("mysession")
+    red_cache = spotipy.RedisCacheHandler(red, key = cookie)
+    sp = create_sp(red_cache)
     sp.auth_manager.get_access_token(code)
     return RedirectResponse("/")
 
@@ -71,7 +92,12 @@ from algorithms.analysis import analysis_output
 
 #this is the output returned to be printed on the webpage
 @app.post("/data_request")
-def processing(data : NameReq):
+def processing(data : NameReq, request : Request):
+    cookie = request.cookies.get("mysession")
+    if red.get(cookie) is None:
+        return {"message" : "login required"}
+    red_cache = spotipy.RedisCacheHandler(red, key = cookie)
+    sp = create_sp(red_cache)
     (target_song_name,
      comparison_name,
      id_dict,

@@ -3,17 +3,29 @@ console.log("Hello from JavaScript!");
 
 // monitor buttons for clicks
 const spotify_login_button = document.getElementById("spotify_redirect");
-const methodButtons = document.querySelectorAll(".method-button");
+const method_button_list = document.querySelectorAll(".method-button");
 const submit_button = document.getElementById("data_submission");
 
-methodButtons.forEach(button => {
+// create variable for all output and overwriting function
+const output_text = document.querySelectorAll(".output_text")
+function overwrite_output_text(message){
+    output_text.forEach(element => {
+        element.textContent = ""
+    })
+    const overwrite_message = document.getElementById("overwrite_text_placeholder")
+    overwrite_message.textContent = message
+}
+
+// method selection, decides which algorithm to run in the backend
+let button_method = "playlist/album";
+method_button_list.forEach(button => {
     button.addEventListener("click", () => {
-      methodButtons.forEach(button => {
+      method_button_list.forEach(button => {
           button.classList.remove("active")
       });
       button.classList.add("active")
-      const method = button.dataset.method;
-      console.log(method)
+      const button_method = button.dataset.method;
+      console.log(button_method)
     })
 })
 
@@ -57,13 +69,15 @@ function jsonToTable(data, elementId) {
     table.appendChild(tbody)
 
     const to_be_tabled = document.getElementById(elementId)
+    // Clear any previous output to prevent visual clogging
+    to_be_tabled.textContent = ""
     to_be_tabled.appendChild(table)
 }
 
 // Spotify login
-spotify_login_button.addEventListener("click", async function(){
+spotify_login_button.addEventListener("click", async function() {
     console.log("Spotify login activated")
-    window.location.href = "/login"
+    window.location.href = "/login_to_cookie"
 });
 
 // main event
@@ -73,7 +87,38 @@ submit_button.addEventListener("click", async function() {
     // pull the str entered into the submission field
     const target_song_url = document.getElementById("target_song_url").value
     const comparison_url = document.getElementById("comparison_url").value
-    const method = document.getElementById("method").value
+
+    // check the urls are valid and that the method chosen matches comparison url submitted
+    if (!target_song_url.startsWith("https://open.spotify.com/")){
+        console.log("target url error")
+        overwrite_output_text("Error: the target song URL is malformed. Please re-enter it.")
+        return;
+    }
+    else if (!comparison_url.startsWith("https://open.spotify.com/")){
+        console.log("comparison url error")
+        overwrite_output_text("Error: the comparison object URL is malformed. Please re-enter it.")
+        return;
+    }
+    const object_type = new URL(comparison_url).pathname.split("/")[1]
+    console.log("object type")
+    console.log(object_type)
+    if (button_method !== object_type){
+        if (button_method === "playlist/album"){
+            if (!(object_type === "playlist" || object_type === "album")){
+                overwrite_output_text("Error: you may have selected the wrong comparison method. Please try again.")
+                return;
+            }
+        }
+        else {
+            overwrite_output_text("Error: you may have selected the wrong comparison method. Please try again.")
+            return;
+        }
+    }
+
+    // convert var name for backend, just to make the var name recognisable at both ends
+    const method = button_method
+    console.log(method)
+
     // send off data to main.py through FastAPI
     const response = await fetch("/data_request", {
         method : "POST",
@@ -87,13 +132,34 @@ submit_button.addEventListener("click", async function() {
         }
     })
     console.log(response)
-    // assign text to be rewritten
+
+    // assign text to be rewritten, needs to be above check for error code 500
     const target_song_output = document.getElementById("target_song_output")
     const comparison_output = document.getElementById("comparison_output")
+
+    if (response.status === 500 && method === "playlist/album"){
+        overwrite_output_text("Error: unable to access data. This may be due to " +
+            "an incorrect playlist/album ID, or you may not have access to this data with your account. " +
+            "Please try signing in if you have not already. If you have signed in, check your account" +
+            "is the owner of the playlist.")
+    }
+
     // assign response
     const data = await response.json()
 
+    if (data.message){
+        window.location.href = "/login_to_cookie"
+        return;
+    }
+    if (!data.target_song_name || !data.comparison_name || !data.distance_data || data.sorted_data){
+        overwrite_output_text("Error: data retrieval was unsuccessful. Please check your " +
+            "URLs are correct and that you have access to this data. If so, it may be " +
+            "an issue with the server.")
+        return
+    }
+
     // overwrite text on page
+    console.log(data)
     target_song_output.textContent = data.target_song_name
     comparison_output.textContent = data.comparison_name
     const distance_data = JSON.parse(data.distance_data)["Unsorted data"]

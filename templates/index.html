@@ -36,16 +36,16 @@
         <input id = "target_song_url" type = "text" name = "target_song_url">
         <p>Please enter the full URL of your comparison object (playlist/album, artist) below:</p>
         <input id = "comparison_url" type = "text" name = "comparison_url">
-        <p>Please type either playlist or artist below:</p>
-        <input id = "method" type = "text" name = "playlist_url">
+        <br>
         <button id = "data_submission" type = "button">Submit</button>
     </form>
 
-    <p id = "target_song_output">Target song URL appears here</p>
-    <p id = "comparison_output">Playlist URL appears here</p>
-    <div id = "distance_table">Distance Table:</div>
+    <p id = "overwrite_text_placeholder" class = "output_text"></p>
+    <p id = "target_song_output" class = "output_text">Target song URL appears here</p>
+    <p id = "comparison_output" class = "output_text">Playlist URL appears here</p>
+    <div id = "distance_table" class = "output_text">Distance Table:</div>
     <br>
-    <div id = "sorted_table">Sorted Distance Table:</div>
+    <div id = "sorted_table" class = "output_text">Sorted Distance Table:</div>
 
 <script src="{{ url_for('static', path='script.js') }}"></script>
 
