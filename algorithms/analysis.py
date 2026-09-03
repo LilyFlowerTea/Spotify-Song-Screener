@@ -8,16 +8,16 @@ import json as js
 
 ###USER VARIABLES HERE
 
-exclude_music_keys = False
 manual_weighting = True
+exclude_music_keys = True
 #weight_array might go here, might not be necessary
 
 ######################
 
 def analysis_output(id_dict : dict,
                     audios : list,
-                    # exclude_music_keys : bool,
                     # manual_weighting : bool
+                    # exclude_music_keys : bool,
                     ):
 
     #old method, very convoluted
@@ -77,7 +77,7 @@ def analysis_output(id_dict : dict,
     id_dict_dicts = [dic for key, dic in id_dict.items() if isinstance(dic, dict)]
     #don't need the target track to be in the reversed dictionary so index to skip it
     reverse_id_dict = {id_str : name for name, id_str in id_dict_dicts[1].items()}
-    assigned_distances = [[reverse_id_dict[id], float(distance)] for id, distance in zip(id_list, distances)]
+    assigned_distances = [[reverse_id_dict[id], round(float(distance), 4)] for id, distance in zip(id_list, distances)]
 
     assigned_distances_sorted = sorted(assigned_distances, key = lambda x : x[1])
 

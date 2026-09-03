@@ -109,8 +109,8 @@ def processing(data : NameReq, request : Request):
                                         data.comparison_url,
                                         data.method)
     unsorted_data_json, sorted_data_json = analysis_output(id_dict, audios)
-    return {"target_song_name" : f"Your target song is: {target_song_name}",
-            "comparison_name" : f"Your target comparison is tracks from the {comparison_type}: {comparison_name}",
+    return {"target_song_name" : f"Your target song is:\n{target_song_name}",
+            "comparison_name" : f"Your target comparison is tracks from the {comparison_type}:\n{comparison_name}",
             "distance_data" : unsorted_data_json,
             "sorted_data" : sorted_data_json
             }

@@ -13,45 +13,53 @@
         <button id = "spotify_redirect" type = "button">Log in to Spotify</button>
     </form>
     <p>Select your comparison method below:</p>
-    <div class = "method-selector">
-        <button class = "method-button active" data-method = "playlist/album">
-                Playlist/Album
-        </button>
 
-        <button class = "method-button" data-method = "artist">
-                Artist
-        </button>
+    <div id = "input_box_whole">
+        <div id = "url_and_method_box">
+            <div class = "method-selector">
+                <button class = "method-button active" data-method = "playlist/album">
+                        Playlist/Album
+                </button>
 
-        <button class = "method-button" data-method = "random_recs">
-                Generate Recommendations
-        </button>
+                <button class = "method-button" data-method = "artist">
+                        Artist
+                </button>
 
-        <button class = "method-button" data-method = "extra">
-                Extra
-        </button>
+                <button class = "method-button" data-method = "random_recs">
+                        Generate Recommendations
+                </button>
+
+                <button class = "method-button" data-method = "extra">
+                        Extra
+                </button>
+            </div>
+        <!--    create submission field -->
+            <p class = "input_field">Please paste the full URL of your target song below:</p>
+            <input id = "target_song_url" type = "text" name = "target_song_url" class = "input_field">
+            <p id = "comparison_url_entry_message" class = "input_field">Please paste the full URL of your playlist/album below:</p>
+            <input id = "comparison_url" type = "text" name = "comparison_url" class = "input_field">
+            <form action = "/data_request" method = "post">
+                <button id = "data_submission" type = "button">Submit</button>
+            </form>
+            <br>
+        </div>
     </div>
-<!--    create submission field -->
-    <form action = "/data_request" method = "post">
-        <p>Please paste the full URL of your target song below:</p>
-        <input id = "target_song_url" type = "text" name = "target_song_url">
-        <p id = "comparison_url_entry_message">Please paste the full URL of your playlist/album below:</p>
-        <input id = "comparison_url" type = "text" name = "comparison_url">
-        <br>
-        <button id = "data_submission" type = "button">Submit</button>
-    </form>
 
     <div id = "output_text_div">
         <p id = "overwrite_text_placeholder" class = "output_text" style = "display: none"></p>
         <p id = "target_song_output" class = "output_text">Your target song appears here</p>
         <p id = "comparison_output" class = "output_text">Your playlist/album name appears here</p>
     </div>
-    <div id = "output_table_div">
-<!--    Make an option to show sorted vs unsorted data -->
-        <label id = "sorted_switch" class = "switch" style = "display: none">
-            <input type = "checkbox">
-            <span class = "slider round"></span>
-        </label>
-        <div id = "distance_data" class = "output_text"></div>
+    <div id = "output_area_div">
+        <div id = "distance_data" class = "output_text" style = "display: none"></div>
+        <div id = "sorted_switch_container" style = "display: none">
+            <!--    Make an option to show sorted vs unsorted data -->
+            <span id = "sorted_switch_desc">Sort entries by similarity</span>
+            <label id = "sorted_switch_label" class = "switch">
+                <input id = "sorted_switch" type = "checkbox">
+                <span class = "slider round"></span>
+            </label>
+        </div>
     </div>
 
 <script src="{{ url_for('static', path='script.js') }}"></script>

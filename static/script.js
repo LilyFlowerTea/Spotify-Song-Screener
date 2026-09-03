@@ -6,6 +6,9 @@ let button_method = "playlist/album";
 let sorted_data = "";
 let unsorted_data = "";
 
+// other variables
+const overwrite_message = document.getElementById("overwrite_text_placeholder")
+
 // monitor buttons for clicks
 const spotify_login_button = document.getElementById("spotify_redirect");
 const method_button_list = document.querySelectorAll(".method-button");
@@ -18,7 +21,6 @@ function overwrite_output_text(message){
         element.textContent = ""
         element.style.display = "none"
     })
-    const overwrite_message = document.getElementById("overwrite_text_placeholder")
     overwrite_message.style.display = "block"
     overwrite_message.textContent = message
 }
@@ -50,15 +52,21 @@ method_button_list.forEach(button => {
 let distance_data = document.getElementById("distance_data")
 let unsorted_data_table = ""
 let sorted_data_table = ""
+const sorted_switch_container = document.querySelector("#sorted_switch_container")
 const sorted_switch = document.getElementById("sorted_switch")
-sorted_switch.addEventListener("change", async function() {
+async function updateTable() {
     if (sorted_switch.checked) {
         distance_data.replaceChildren(sorted_data_table)
+        console.log("checked")
     }
     else {
         distance_data.replaceChildren(unsorted_data_table)
+        console.log("unchecked")
     }
-})
+}
+
+// create listener for the table update when switch is toggled
+sorted_switch.addEventListener("change", updateTable)
 
 function jsonToTable(data) {
     if (!data) return;
@@ -122,7 +130,7 @@ submit_button.addEventListener("click", async function() {
     const comparison_url = document.getElementById("comparison_url").value
 
     // check the urls are valid and that the method chosen matches comparison url submitted
-    if (!target_song_url.startsWith("https://open.spotify.com/")){
+    if (!target_song_url.startsWith("https://open.spotify.com/track/")){
         console.log("Target URL error")
         overwrite_output_text("Error: the target song URL is empty or malformed. Please re-enter it.")
         return;
@@ -197,13 +205,20 @@ submit_button.addEventListener("click", async function() {
     // overwrite text on page
     console.log("Data below")
     console.log(data)
+    overwrite_text_placeholder.style.display = "none"
+    target_song_output.style.display = "block"
+    comparison_output.style.display = "block"
+    distance_data.style.display = "block"
     target_song_output.textContent = data.target_song_name
     comparison_output.textContent = data.comparison_name
+
     sorted_data = JSON.parse(data.sorted_data)["Sorted data"]
     unsorted_data = JSON.parse(data.distance_data)["Unsorted data"]
     unsorted_data_table = jsonToTable(unsorted_data, "unsorted_table")
     sorted_data_table = jsonToTable(sorted_data, "sorted_table")
+
     sorted_switch.checked = true
-    sorted_switch.style.display = "block"
+    sorted_switch_container.style.display = "flex"
+    await updateTable()
     console.log("Process complete")
 })
