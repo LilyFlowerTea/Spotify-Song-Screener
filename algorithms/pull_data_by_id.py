@@ -9,7 +9,7 @@ load_dotenv(find_dotenv())
 
 # define methods
 class ComparisonMethod(Enum):
-    PLAYLIST = "playlist"
+    PLAYLIST_OR_ALBUM = "playlist/album"
     ARTIST = "artist"
     RANDOM_RECS = "random"
 
@@ -34,7 +34,7 @@ def pull_ids(sp, track_url : str, comparison_url : str, method : ComparisonMetho
 
     # Need to take a user input for the function condition that tells it which method to use,
     # i.e. playlist comparison, artist comparison (checking tracks by an artist), or random recommendation
-    if method == ComparisonMethod.PLAYLIST:
+    if method == ComparisonMethod.PLAYLIST_OR_ALBUM:
         from .playlist_compare import pull_playlist
         comparison_name, id_dict, comparison_type = pull_playlist(sp, id_dict, comparison_url)
     elif method == ComparisonMethod.ARTIST:
@@ -93,7 +93,6 @@ def parcelling_and_extraction(ids):
         querystring = {"ids" : f"{pcls[parcel]}"}
         response = (requests.get(url, headers=headers, params=querystring)).json()
         print(audios)
-        print("LINEBREAK")
         audios.extend(response['audio_features'])
 
     #this block is to replace having to pull data each time since there are usage limits
