@@ -25,6 +25,7 @@ function overwrite_output_text(message){
 
 // method selection, decides which algorithm to run in the backend
 // also assigns elements to be dynamically edited to match comparison selection
+const target_song_output = document.getElementById("target_song_output")
 const comparison_url_entry_message = document.getElementById("comparison_url_entry_message")
 const comparison_output = document.getElementById("comparison_output")
 method_button_list.forEach(button => {
@@ -36,6 +37,11 @@ method_button_list.forEach(button => {
         button_method = button.dataset.method;
         console.log(`Button method is ${button_method}`)
         comparison_url_entry_message.textContent = `Please paste the full URL of your ${button_method} below`
+        const overwrite_text_placeholder = document.getElementById("overwrite_text_placeholder")
+        overwrite_text_placeholder.style.display = "none"
+        target_song_output.style.display = "block"
+        target_song_output.textContent = "Your target song appears here"
+        comparison_output.style.display = "block"
         comparison_output.textContent = `Your ${button_method} appears here`
     })
 })
