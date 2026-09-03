@@ -94,6 +94,8 @@ from algorithms.analysis import analysis_output
 @app.post("/data_request")
 def processing(data : NameReq, request : Request):
     cookie = request.cookies.get("mysession")
+    if cookie is None:
+        return {"message" : "login required"}
     if red.get(cookie) is None:
         return {"message" : "login required"}
     red_cache = spotipy.RedisCacheHandler(red, key = cookie)
