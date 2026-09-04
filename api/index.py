@@ -113,8 +113,10 @@ def processing(data : NameReq, request : Request):
         # print("playlist in comparison_url - need private sp to access")
         cookie = request.cookies.get("mysession")
         if cookie is None:
+            print("No cookie found")
             return {"message" : "login required"}
         if red.get(cookie) is None:
+            print("No access token found")
             return {"message" : "login required"}
         red_cache = spotipy.RedisCacheHandler(red, key = cookie)
         sp = create_sp(red_cache)
