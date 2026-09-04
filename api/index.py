@@ -106,48 +106,26 @@ from algorithms.analysis import analysis_output
 def processing(data : NameReq, request : Request):
     # public sp suitable for general access to album and artist data
     sp = create_public_sp()
-    # add in a check for whether the comparison object is a playlist, and if so whether it is public
-    # if private, check for access token presence, then redirect if none found
+    # add in a check for whether the comparison object is a playlist
+    # all playlists, public or private, require owner login to get items
+    # therefore check for access token presence, and redirect if none found
     if "playlist" in data.comparison_url:
-        print("playlist in comparison_url - may need private sp")
-        # attempt to retrieve basic playlist info using a public client
-        try:
-            # this should fail if it's private, nothing returns
-            playlist_check = sp.playlist(data.comparison_url)
-            if playlist_check["public"]:
-                (target_song_name,
-                 comparison_name,
-                 id_dict,
-                 audios,
-                 comparison_type) = pull_data_by_id(sp,
-                                                    data.target_song_url,
-                                                    data.comparison_url,
-                                                    data.method)
-            else:
-                raise HTTPException(status_code=500, detail = "Test 500 error")
-        # this is the expected error if the playlist is private
-        # it may also return if the playlist does not exist, but in that case
-        # the server should raise a 500 error which is handled by the frontend
-        except spotipy.exceptions.SpotifyException as exception_code:
-            if exception_code.http_status == 404:
-                cookie = request.cookies.get("mysession")
-                if cookie is None:
-                    return {"message" : "login required"}
-                if red.get(cookie) is None:
-                    return {"message" : "login required"}
-                red_cache = spotipy.RedisCacheHandler(red, key = cookie)
-                sp = create_sp(red_cache)
-                (target_song_name,
-                 comparison_name,
-                 id_dict,
-                 audios,
-                 comparison_type) = pull_data_by_id(sp,
-                                                    data.target_song_url,
-                                                    data.comparison_url,
-                                                    data.method)
-            # failsafe here
-            else:
-                raise HTTPException(status_code=500, detail = "Test 500 error")
+        # print("playlist in comparison_url - need private sp to access")
+        cookie = request.cookies.get("mysession")
+        if cookie is None:
+            return {"message" : "login required"}
+        if red.get(cookie) is None:
+            return {"message" : "login required"}
+        red_cache = spotipy.RedisCacheHandler(red, key = cookie)
+        sp = create_sp(red_cache)
+        (target_song_name,
+         comparison_name,
+         id_dict,
+         audios,
+         comparison_type) = pull_data_by_id(sp,
+                                            data.target_song_url,
+                                            data.comparison_url,
+                                            data.method)
     # if the comparison is not a playlist, it should be album or artist
     # both of these are publicly accessible
     else:

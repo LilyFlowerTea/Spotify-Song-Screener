@@ -27,6 +27,6 @@
 #         )
 #     )
 #     return sp
-
+#
 # sp = spotify_client_auth()
-# print(sp.album("https://open.spotify.com/album/3B4cg0LWmS1RCUJdOZ1aJ6"))
+# print(sp.playlist_items("https://open.spotify.com/playlist/4l7Q5JCpy4d1eaUm5ZFrZJ"))
