@@ -143,6 +143,8 @@ submit_button.addEventListener("click", async function() {
     // Wait times can be long, so I output this to console to confirm it's active
     console.log("URLs submitted")
     overwrite_output_text("URLs submitted, please wait while data is retrieved and processed")
+    // hide sorted_switch_container
+    sorted_switch_container.style.display = "none"
     // pull the str entered into the submission field
     const target_song_url = document.getElementById("target_song_url").value
     const comparison_url = document.getElementById("comparison_url").value
@@ -208,7 +210,7 @@ submit_button.addEventListener("click", async function() {
         overwrite_output_text("Error: unable to access data. This may be due to " +
             "an incorrect playlist/album ID, or you may not have access to this data with your account. " +
             "Please try signing in if you have not already. If you have signed in, check your account " +
-            "is the owner of the playlist. If you have done all of this, it may be a server issue")
+            "is the owner of the playlist. If you have done all of this, it may be a server issue.")
         return;
     }
 

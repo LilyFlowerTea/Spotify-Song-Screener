@@ -7,14 +7,36 @@
 
 <body>
     <h1>Spotify Song Recommender</h1>
+    <div id = "intro_area_div">
+        <p id = "intro_message">This website takes a target song that you choose and finds the closest songs
+        in a comparison object, such as a playlist, album, or artist's catalogue.</p>
+    </div>
 <!--    create authentication button -->
     <form action = "/login" method = "get">
-        <p>Please log in to Spotify below, this is required to access private playlists:</p>
+<!--        <p>Please log in to Spotify below, this is required to access private playlists:</p>-->
         <button id = "spotify_redirect" type = "button">Log in to Spotify</button>
     </form>
     <p>Select your comparison method below:</p>
 
     <div id = "input_box_whole">
+        <div id = "temp_messages_div">
+            <span id = "login_warning_message">Please be aware that login is required to access your own private
+            Spotify playlists. Unfortunately, due to Spotify's API policy, login will not work unless
+            I can approve your account. Please contact me if you want to use your private playlists.
+            </span>
+            <br>
+            <span id = "api_workaround_desc">As a workaround, you can also set your playlists to
+            public in Spotify, then input them, although the change takes time to register.
+            If you do not log in and attempt to access private playlists, you will be redirected to
+            Spotify and the page will reload once you return.
+            </span>
+            <br>
+            <br>
+            <span id = "options_3_4_not working_warning">Warning: 'Generate recommendations' and 'Extra'
+            are not yet functional.
+            </span>
+        </div>
+
         <div id = "url_and_method_box_div">
             <div class = "method-selector">
                 <button class = "method-button active" data-method = "playlist/album">
@@ -41,11 +63,13 @@
             <form action = "/data_request" method = "post">
                 <button id = "data_submission" type = "button">Submit</button>
             </form>
-            <br>
         </div>
 
         <div id = "weight_selector_div">
-            <span id = "weightings_message">If you would like to manually adjust parameter weightings you can do so here:</span>
+            <span id = "weightings_message">If you would like to manually adjust parameter weightings
+                you can do so here. Higher weightings means the ranking will prefer songs that are close
+                in these features over other features.
+            </span>
             <div id = "duration" class = "weight_row">
                 <span>Duration</span>
                 <input class = "weighting_scale" type = "range" value = "1" min = "0" max = "10" step = "0.1">

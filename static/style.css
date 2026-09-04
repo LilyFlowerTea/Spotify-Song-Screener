@@ -39,6 +39,18 @@ form {
     text-align: center;
 }
 
+#intro_area_div {
+    width: 750px;
+    margin: 0 auto;
+    background: var(--spotify-almost-black);
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+}
+
+#login_warning_message {
+    color: #ff3333;
+}
+
 #spotify_redirect {
     background-color: var(--spotify-green);
     color: var(--spotify-black);
@@ -48,8 +60,8 @@ form {
     font-weight: 700;
     padding: 10px 20px;
     cursor: pointer;
-    margin-top: 5px;
-    margin-bottom: 10px;
+    margin-top: 20px;
+    margin-bottom: 5px;
 }
 
 #input_box_whole {
@@ -57,17 +69,35 @@ form {
     height: 290px;
 }
 
+#api_workaround_desc {
+    font-weight: 600;
+}
+
+#temp_messages_div {
+    position: absolute;
+    left: calc(50% - 731px);
+    top: -60px;
+    width: 350px;
+    color: #ff3300;
+    font-size: 20px;
+    background: var(--spotify-almost-black);
+    padding: 20px 15px;
+    border-radius: var(--border-radius);
+    font-family: sans-serif;
+}
+
 #url_and_method_box_div {
     background: var(--spotify-almost-black);
     border-radius: var(--border-radius) var(--border-radius) 30px 30px;
     width: 651px;
     margin: 0 auto;
+    padding: 0 0 20px 0;
 }
 
 #weight_selector_div {
     position: absolute;
     left: calc(50% + 351px);
-    top: -60px;
+    top: -100px;
     width: 335px;
     background: var(--spotify-almost-black);
     padding: 20px 15px;
@@ -209,9 +239,9 @@ form {
 #output_text_div {
     position: relative;
     display: flex;
-    max-width: 600px;
+    max-width: 650px;
     justify-content: space-between;
-    margin: 0 auto;
+    margin: 10px auto;
     font-size: 20px;
 }
 
@@ -310,7 +340,7 @@ input:checked + .slider:before {
 
 #distance_data th:nth-child(2),
 #distance_data td:nth-child(2){
-    width: 200px;
+    width: 400px;
 }
 
 #distance_data th:nth-child(3),
@@ -362,8 +392,8 @@ input:checked + .slider:before {
 
 #sorted_switch_container {
     position: absolute;
-    left: calc(50% + 275px);
-    top: 50%;
+    left: calc(50% + 400px);
+    top: 15%;
     transform: translateY(-50%);
     display: flex;
     flex-direction: column;
