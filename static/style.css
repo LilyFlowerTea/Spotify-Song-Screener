@@ -69,10 +69,6 @@ form {
     height: 290px;
 }
 
-#api_workaround_desc {
-    font-weight: 600;
-}
-
 #temp_messages_div {
     position: absolute;
     left: calc(50% - 731px);
