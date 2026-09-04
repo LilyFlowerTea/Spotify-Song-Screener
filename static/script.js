@@ -6,10 +6,16 @@ let button_method = "playlist/album";
 let sorted_data = "";
 let unsorted_data = "";
 
+// other variables
+const overwrite_message = document.getElementById("overwrite_text_placeholder")
+
 // monitor buttons for clicks
 const spotify_login_button = document.getElementById("spotify_redirect");
 const method_button_list = document.querySelectorAll(".method-button");
 const submit_button = document.getElementById("data_submission");
+const weights_reset_button = document.getElementById("weights_reset_button")
+const weighting_scale_list = document.querySelectorAll(".weighting_scale")
+const weighting_value_display_list = document.querySelectorAll(".weighting_value_display");
 
 // create variable for all output and overwriting function
 const output_text = document.querySelectorAll(".output_text")
@@ -18,13 +24,13 @@ function overwrite_output_text(message){
         element.textContent = ""
         element.style.display = "none"
     })
-    const overwrite_message = document.getElementById("overwrite_text_placeholder")
     overwrite_message.style.display = "block"
     overwrite_message.textContent = message
 }
 
 // method selection, decides which algorithm to run in the backend
 // also assigns elements to be dynamically edited to match comparison selection
+const target_song_output = document.getElementById("target_song_output")
 const comparison_url_entry_message = document.getElementById("comparison_url_entry_message")
 const comparison_output = document.getElementById("comparison_output")
 method_button_list.forEach(button => {
@@ -36,7 +42,28 @@ method_button_list.forEach(button => {
         button_method = button.dataset.method;
         console.log(`Button method is ${button_method}`)
         comparison_url_entry_message.textContent = `Please paste the full URL of your ${button_method} below`
+        const overwrite_text_placeholder = document.getElementById("overwrite_text_placeholder")
+        overwrite_text_placeholder.style.display = "none"
+        target_song_output.style.display = "block"
+        target_song_output.textContent = "Your target song appears here"
+        comparison_output.style.display = "block"
         comparison_output.textContent = `Your ${button_method} appears here`
+    })
+})
+
+// setup weights_reset button event
+weights_reset_button.addEventListener("click", function() {
+    weighting_scale_list.forEach((weighting, index) => {
+        weighting.value = 1
+        weighting_value_display_list[index].textContent = "1"
+    })
+})
+
+// event to monitor changes in weighting values
+weighting_scale_list.forEach((weighting, index) => {
+    weighting.addEventListener("input", function() {
+        console.log(`${weighting} clicked`)
+        weighting_value_display_list[index].textContent = weighting.value
     })
 })
 
@@ -44,15 +71,20 @@ method_button_list.forEach(button => {
 let distance_data = document.getElementById("distance_data")
 let unsorted_data_table = ""
 let sorted_data_table = ""
+const sorted_switch_container = document.querySelector("#sorted_switch_container")
 const sorted_switch = document.getElementById("sorted_switch")
-sorted_switch.addEventListener("change", async function() {
+async function updateTable() {
     if (sorted_switch.checked) {
         distance_data.replaceChildren(sorted_data_table)
+        console.log("checked")
     }
     else {
         distance_data.replaceChildren(unsorted_data_table)
+        console.log("unchecked")
     }
-})
+}
+// then create listener for the table update when switch is toggled
+sorted_switch.addEventListener("change", updateTable)
 
 function jsonToTable(data) {
     if (!data) return;
@@ -116,7 +148,7 @@ submit_button.addEventListener("click", async function() {
     const comparison_url = document.getElementById("comparison_url").value
 
     // check the urls are valid and that the method chosen matches comparison url submitted
-    if (!target_song_url.startsWith("https://open.spotify.com/")){
+    if (!target_song_url.startsWith("https://open.spotify.com/track/")){
         console.log("Target URL error")
         overwrite_output_text("Error: the target song URL is empty or malformed. Please re-enter it.")
         return;
@@ -145,13 +177,21 @@ submit_button.addEventListener("click", async function() {
     const method = button_method
     console.log(`Method is ${method}`)
 
+    // grab weights and package them for analysis
+    const weight_array = []
+    weighting_scale_list.forEach((weighting) => {
+        weight_array.push(Number(weighting.value))
+    })
+    console.log(`Weight array is ${weight_array}`)
+
     // send off data to main.py through FastAPI
     const response = await fetch("/data_request", {
         method : "POST",
         body : JSON.stringify({
             target_song_url,
             comparison_url,
-            method
+            method,
+            weight_array
         }),
         headers : {
             "Content-Type" : "application/json"
@@ -191,13 +231,20 @@ submit_button.addEventListener("click", async function() {
     // overwrite text on page
     console.log("Data below")
     console.log(data)
+    overwrite_text_placeholder.style.display = "none"
+    target_song_output.style.display = "block"
+    comparison_output.style.display = "block"
+    distance_data.style.display = "block"
     target_song_output.textContent = data.target_song_name
     comparison_output.textContent = data.comparison_name
+
     sorted_data = JSON.parse(data.sorted_data)["Sorted data"]
     unsorted_data = JSON.parse(data.distance_data)["Unsorted data"]
     unsorted_data_table = jsonToTable(unsorted_data, "unsorted_table")
     sorted_data_table = jsonToTable(sorted_data, "sorted_table")
+
     sorted_switch.checked = true
-    sorted_switch.style.display = "block"
+    sorted_switch_container.style.display = "flex"
+    await updateTable()
     console.log("Process complete")
 })
