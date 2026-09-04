@@ -13,6 +13,9 @@ const overwrite_message = document.getElementById("overwrite_text_placeholder")
 const spotify_login_button = document.getElementById("spotify_redirect");
 const method_button_list = document.querySelectorAll(".method-button");
 const submit_button = document.getElementById("data_submission");
+const weights_reset_button = document.getElementById("weights_reset_button")
+const weighting_scale_list = document.querySelectorAll(".weighting_scale")
+const weighting_value_display_list = document.querySelectorAll(".weighting_value_display");
 
 // create variable for all output and overwriting function
 const output_text = document.querySelectorAll(".output_text")
@@ -48,6 +51,22 @@ method_button_list.forEach(button => {
     })
 })
 
+// setup weights_reset button event
+weights_reset_button.addEventListener("click", function() {
+    weighting_scale_list.forEach((weighting, index) => {
+        weighting.value = 1
+        weighting_value_display_list[index].textContent = "1"
+    })
+})
+
+// event to monitor changes in weighting values
+weighting_scale_list.forEach((weighting, index) => {
+    weighting.addEventListener("input", function() {
+        console.log(`${weighting} clicked`)
+        weighting_value_display_list[index].textContent = weighting.value
+    })
+})
+
 // generate sorted_switch, initially hidden but will be revealed and checked when the data is displayed
 let distance_data = document.getElementById("distance_data")
 let unsorted_data_table = ""
@@ -64,8 +83,7 @@ async function updateTable() {
         console.log("unchecked")
     }
 }
-
-// create listener for the table update when switch is toggled
+// then create listener for the table update when switch is toggled
 sorted_switch.addEventListener("change", updateTable)
 
 function jsonToTable(data) {
@@ -159,13 +177,21 @@ submit_button.addEventListener("click", async function() {
     const method = button_method
     console.log(`Method is ${method}`)
 
+    // grab weights and package them for analysis
+    const weight_array = []
+    weighting_scale_list.forEach((weighting) => {
+        weight_array.push(Number(weighting.value))
+    })
+    console.log(`Weight array is ${weight_array}`)
+
     // send off data to main.py through FastAPI
     const response = await fetch("/data_request", {
         method : "POST",
         body : JSON.stringify({
             target_song_url,
             comparison_url,
-            method
+            method,
+            weight_array
         }),
         headers : {
             "Content-Type" : "application/json"

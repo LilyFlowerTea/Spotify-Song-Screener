@@ -16,6 +16,7 @@ exclude_music_keys = True
 
 def analysis_output(id_dict : dict,
                     audios : list,
+                    weight_array : list,
                     # manual_weighting : bool
                     # exclude_music_keys : bool,
                     ):
@@ -36,7 +37,7 @@ def analysis_output(id_dict : dict,
 
     #weighting array
     #need to assign this beforehand or manual_weighting fails since the list indices don't exist yet
-    weight_array = np.ones(len(feature_list) - 1)
+    # weight_array = np.ones(len(feature_list) - 1)
 
     #extract and organise target song features
     target_song_feats = [audios[0][key] for key in feature_list[1:]]

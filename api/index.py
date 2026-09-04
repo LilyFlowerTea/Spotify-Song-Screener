@@ -29,6 +29,7 @@ class NameReq(BaseModel):
     target_song_url : str
     comparison_url : str
     method : ComparisonMethod
+    weight_array : list
 
 #pointing to the html page that builds the webpage
 templates = Jinja2Templates(directory="templates")
@@ -108,7 +109,7 @@ def processing(data : NameReq, request : Request):
                                         data.target_song_url,
                                         data.comparison_url,
                                         data.method)
-    unsorted_data_json, sorted_data_json = analysis_output(id_dict, audios)
+    unsorted_data_json, sorted_data_json = analysis_output(id_dict, audios, data.weight_array)
     return {"target_song_name" : f"Your target song is:\n{target_song_name}",
             "comparison_name" : f"Your target comparison is tracks from the {comparison_type}:\n{comparison_name}",
             "distance_data" : unsorted_data_json,
