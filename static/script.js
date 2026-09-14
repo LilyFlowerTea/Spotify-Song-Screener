@@ -135,7 +135,7 @@ function jsonToTable(data) {
 // Spotify login
 spotify_login_button.addEventListener("click", async function() {
     console.log("Spotify login activated")
-    window.location.href = "/login_to_cookie"
+    window.location.href = "/cookie_to_spotify"
 });
 
 // main event
@@ -218,7 +218,7 @@ submit_button.addEventListener("click", async function() {
     const data = await response.json()
 
     if (data.message){
-        window.location.href = "/login_to_cookie"
+        window.location.href = "/cookie_to_spotify"
         return;
     }
 

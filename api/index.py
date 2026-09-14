@@ -35,14 +35,23 @@ class NameReq(BaseModel):
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-#build webpage
+# initial webpage setup, cookie generation
 @app.get("/")
 def home(request: Request):
-    return templates.TemplateResponse(
+    # check if a cookie is present already, if not generate it
+    session_id = request.cookies.get("mysession")
+    if session_id is None:
+        # generate a cookie for the user session, required to check if the login button should be hidden
+        session_id = secrets.token_hex(16)
+    # build webpage
+    response = templates.TemplateResponse(
         request=request,
         name="index.html",
         context={}
     )
+    # attach cookie to response object
+    response.set_cookie(key="mysession", value=session_id, max_age=3600)
+    return response
 
 red = redis.from_url(
     os.environ["REDIS_URL"],
@@ -69,14 +78,6 @@ def create_sp(red_cache):
                                                        cache_handler = red_cache
                                                        ))
     return sp
-
-#step 1 is to generate a cookie for the user's browser, to identify their Spotify account access
-@app.get("/login_to_cookie")
-def gen_cookie():
-    session_id = secrets.token_hex(16)
-    redirect = RedirectResponse("/cookie_to_spotify")
-    redirect.set_cookie(key = "mysession", value = session_id, max_age = 3600)
-    return redirect
 
 #step 2 is to redirect to spotify login to generate the access token
 @app.get("/cookie_to_spotify")
