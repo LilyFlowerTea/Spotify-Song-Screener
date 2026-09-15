@@ -92,7 +92,7 @@ def parcelling_and_extraction(ids):
     for parcel in range(len(pcls.values())):
         querystring = {"ids" : f"{pcls[parcel]}"}
         response = (requests.get(url, headers=headers, params=querystring)).json()
-        print(audios)
+        # print(audios)
         audios.extend(response['audio_features'])
 
     #this block is to replace having to pull data each time since there are usage limits

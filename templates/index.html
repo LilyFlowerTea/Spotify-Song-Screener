@@ -11,21 +11,30 @@
         <p id = "intro_message">This website takes a target song that you choose and finds the closest songs
         in a comparison object, such as a playlist, album, or artist's catalogue.</p>
     </div>
-<!--    create authentication button -->
-    <form action = "/login" method = "get">
-<!--        <p>Please log in to Spotify below, this is required to access private playlists:</p>-->
-        <button id = "spotify_redirect" type = "button">Log in to Spotify</button>
-    </form>
+    {% if should_show_login_button %}
+    <!--    create authentication button -->
+        <form action = "/login" method = "get">
+            <button id = "spotify_redirect" type = "button">Log in to Spotify</button>
+        </form>
+    {% else %}
+        <div id = "logged_in_display_div">
+            <span id = "logged_in_message">You are already logged in</span>
+            <form action = "/logout" method = "get">
+            <button id = "spotify_logout" type = "button">Logout</button>
+        </form>
+        </div>
+
+    {% endif %}
     <p>Select your comparison method below:</p>
 
     <div id = "input_box_whole">
         <div id = "temp_messages_div">
             <span id = "login_warning_message">
-            Please be aware that login is required to access your own
-            Spotify playlists. Unfortunately, due to Spotify's API policy, login will not work unless
+            Please be aware that login is required to access Spotify playlists, and only playlists you
+            own can be analysed. Unfortunately, due to Spotify's API policy, login will not work unless
             I can approve your account. Please contact me if you want to use your playlists.
-            If you do not log in and attempt to access your playlists, you will be redirected to
-            Spotify and the page will reload once you return.
+            If you do not log in and attempt to access playlists, you will be redirected to
+            Spotify and the page will reload once you return, erasing the URLs you submit.
             </span>
             <br>
             <br>

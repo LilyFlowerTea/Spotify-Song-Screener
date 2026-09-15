@@ -132,11 +132,25 @@ function jsonToTable(data) {
     return table
 }
 
-// Spotify login
-spotify_login_button.addEventListener("click", async function() {
-    console.log("Spotify login activated")
-    window.location.href = "/login_to_cookie"
-});
+// Spotify login, check if already logged in or this points to nothing and breaks
+if (spotify_login_button) {
+    spotify_login_button.addEventListener("click", async function () {
+        console.log("Spotify LOGIN activated")
+        window.location.href = "/cookie_to_spotify"
+    })
+}
+
+// setup listener event for logout
+const spotify_logout_button = document.getElementById("spotify_logout")
+if (spotify_logout_button) {
+    spotify_logout_button.addEventListener("click", async function () {
+        console.log("Spotify LOGOUT activated")
+        await fetch("/logout", {
+            method: "DELETE"
+        })
+        window.location.href = "/"
+    })
+}
 
 // main event
 submit_button.addEventListener("click", async function() {
@@ -218,7 +232,7 @@ submit_button.addEventListener("click", async function() {
     const data = await response.json()
 
     if (data.message){
-        window.location.href = "/login_to_cookie"
+        window.location.href = "/cookie_to_spotify"
         return;
     }
 
@@ -227,7 +241,7 @@ submit_button.addEventListener("click", async function() {
         overwrite_output_text("Error: data retrieval was unsuccessful. Please check your " +
             "URLs are correct and that you have access to this data. If so, it may be " +
             "an issue with the server.")
-        return
+        return;
     }
 
     // overwrite text on page
