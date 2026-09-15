@@ -18,10 +18,15 @@
         </form>
     {% else %}
         <div id = "logged_in_display_div">
-            <span id = "logged_in_message">You are already logged in</span>
+            <div id = "user_data_display_div">
+            {% if user_pfp %}
+                <img id = "user_pfp" src = "{{ user_pfp }}">
+            {% endif %}
+            <span id = "logged_in_message">{{ user_name }}</span>
+            </div>
             <form action = "/logout" method = "get">
-            <button id = "spotify_logout" type = "button">Logout</button>
-        </form>
+                <button id = "spotify_logout" type = "button">Logout</button>
+            </form>
         </div>
 
     {% endif %}

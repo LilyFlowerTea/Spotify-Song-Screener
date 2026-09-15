@@ -21,6 +21,7 @@ import redis
 import requests
 
 from algorithms.pull_data_by_id import ComparisonMethod
+from algorithms.pull_user_data import pull_user_data
 
 app = FastAPI()
 
@@ -47,24 +48,62 @@ red = redis.from_url(
 def home(request: Request):
     # check if a cookie is present already, if not generate it
     session_id = request.cookies.get("mysession")
+    print(session_id)
     if session_id is None:
+        print("Yay")
         # generate a cookie for the user session, required to check if the login button should be hidden
         session_id = secrets.token_hex(16)
+        # Should only need to run the code below if there is no cookie already found
+        # If there is a cookie, the Redis database should already have the structure below in place
+
+        # I want to show username and profile picture but the spotipy redis cache handling isn't suited for that
+        # My solution is to create a redis keys with nested keys that can be used to access each piece of data
+        # The master key is the cookie/session_id, and other functions can pull from that
+        access_token_redis_key = secrets.token_hex(16)
+        user_data_redis_key = secrets.token_hex(16)
+        red.set(session_id, json.dumps([access_token_redis_key, user_data_redis_key]))
 
     # check if there is a valid access token associated with this user session, identified by session_id/cookie
     # note here this architecture is not very robust, it could fail if there is an access token
     # but it has expired. solution would be to retrieve access token info and check validity,
     # but I'm not doing that while there are higher priorities
-    if red.get(session_id) in [False, None]:
+
+    # need to pull the Redis entry with the cookie as key, then use the first entry as a key to retrieve
+    # from Redis again, then check if it's False or None
+    red_session_id_check = red.get(session_id)
+    if red_session_id_check is None:
         should_show_login_button = True
+        # No username or pfp available
+        user_name = None
+        user_pfp = None
+        access_token_redis_key = secrets.token_hex(16)
+        user_data_redis_key = secrets.token_hex(16)
+        red.set(session_id, json.dumps([access_token_redis_key, user_data_redis_key]))
+
+    elif red.get(json.loads(red_session_id_check)[0]) in [False, None]:
+        should_show_login_button = True
+        # No username or pfp available
+        user_name = None
+        user_pfp = None
+        access_token_redis_key = secrets.token_hex(16)
+        user_data_redis_key = secrets.token_hex(16)
+        red.set(session_id, json.dumps([access_token_redis_key, user_data_redis_key]))
+
     else:
         should_show_login_button = False
+        # Now pull username and profile picture from Redis
+        user_data_redis_key = json.loads(red_session_id_check)[1]
+        user_name = json.loads(red.get(user_data_redis_key))[0]
+        user_pfp = json.loads(red.get(user_data_redis_key))[1]
 
     # build webpage
     response = templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"should_show_login_button" : should_show_login_button}
+        context={"should_show_login_button" : should_show_login_button,
+                 "user_name" : user_name,
+                 "user_pfp" : user_pfp
+                 }
     )
     # attach cookie to response object, can now be matched later
     response.set_cookie(key="mysession", value=session_id, max_age=86400)
@@ -86,7 +125,7 @@ def create_sp(red_cache):
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIFY_CLIENT_ID"],
                                                    client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
                                                    redirect_uri=os.environ["SPOTIFY_REDIRECT_URI"],
-                                                   scope="playlist-read-private",
+                                                   scope="playlist-read-private user-read-private",
                                                    open_browser = False,
                                                    cache_handler = red_cache
                                                    ))
@@ -97,7 +136,8 @@ def create_sp(red_cache):
 def login(request : Request):
     cookie = request.cookies.get("mysession")
     print(f"Login cookie is: {cookie}")
-    red_cache = spotipy.RedisCacheHandler(red, key = cookie)
+    red_data = json.loads(red.get(cookie))
+    red_cache = spotipy.RedisCacheHandler(red, key = red_data[0])
     sp = create_sp(red_cache)
     spotify_auth_url = sp.auth_manager.get_authorize_url()
     return RedirectResponse(spotify_auth_url)
@@ -109,9 +149,13 @@ def login(request : Request):
 def callback(code, request : Request):
     cookie = request.cookies.get("mysession")
     print(f"Callback cookie is: {cookie}")
-    red_cache = spotipy.RedisCacheHandler(red, key = cookie)
+    red_data = json.loads(red.get(cookie))
+    red_cache = spotipy.RedisCacheHandler(red, key = red_data[0])
     sp = create_sp(red_cache)
     sp.auth_manager.get_access_token(code)
+    # assign user_name and user_pfp here
+    user_name, user_pfp = pull_user_data(sp)
+    red.set(red_data[1], json.dumps([user_name, user_pfp]))
     return RedirectResponse("/")
 
 #pull algorithm functions
