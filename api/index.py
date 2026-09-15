@@ -48,9 +48,7 @@ red = redis.from_url(
 def home(request: Request):
     # check if a cookie is present already, if not generate it
     session_id = request.cookies.get("mysession")
-    print(session_id)
     if session_id is None:
-        print("Yay")
         # generate a cookie for the user session, required to check if the login button should be hidden
         session_id = secrets.token_hex(16)
         # Should only need to run the code below if there is no cookie already found
@@ -135,7 +133,6 @@ def create_sp(red_cache):
 @app.get("/cookie_to_spotify")
 def login(request : Request):
     cookie = request.cookies.get("mysession")
-    print(f"Login cookie is: {cookie}")
     red_data = json.loads(red.get(cookie))
     red_cache = spotipy.RedisCacheHandler(red, key = red_data[0])
     sp = create_sp(red_cache)
@@ -148,7 +145,6 @@ def login(request : Request):
 @app.get("/callback")
 def callback(code, request : Request):
     cookie = request.cookies.get("mysession")
-    print(f"Callback cookie is: {cookie}")
     red_data = json.loads(red.get(cookie))
     red_cache = spotipy.RedisCacheHandler(red, key = red_data[0])
     sp = create_sp(red_cache)
@@ -179,7 +175,8 @@ def processing(data : NameReq, request : Request):
         if red.get(cookie) is None:
             print("No access token found")
             return {"message" : "login required"}
-        red_cache = spotipy.RedisCacheHandler(red, key = cookie)
+        red_data = json.loads(red.get(cookie))
+        red_cache = spotipy.RedisCacheHandler(red, key=red_data[0])
         sp = create_sp(red_cache)
         (target_song_name,
          comparison_name,
