@@ -96,6 +96,7 @@ def create_sp(red_cache):
 @app.get("/cookie_to_spotify")
 def login(request : Request):
     cookie = request.cookies.get("mysession")
+    print("Login cookie is:" +cookie)
     red_cache = spotipy.RedisCacheHandler(red, key = cookie)
     sp = create_sp(red_cache)
     spotify_auth_url = sp.auth_manager.get_authorize_url()
@@ -107,9 +108,11 @@ def login(request : Request):
 @app.get("/callback")
 def callback(code, request : Request):
     cookie = request.cookies.get("mysession")
+    print("Callback cookie is:" +cookie)
     red_cache = spotipy.RedisCacheHandler(red, key = cookie)
     sp = create_sp(red_cache)
     sp.auth_manager.get_access_token(code)
+    print("Redis value is:"+red.get(cookie))
     return RedirectResponse("/")
 
 #pull algorithm functions
@@ -131,7 +134,7 @@ def processing(data : NameReq, request : Request):
             print("No cookie found")
             return {"message" : "login required"}
         if red.get(cookie) is None:
-            print("Access token not found")
+            print("No access token found")
             return {"message" : "login required"}
         red_cache = spotipy.RedisCacheHandler(red, key = cookie)
         sp = create_sp(red_cache)
