@@ -68,15 +68,32 @@ form {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     margin: 10px auto;
-    padding: 10px 20px;
+    padding: 10px 10px;
+    width: fit-content;
+    height: 30px;
+}
+
+#user_data_display_div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 5px 10px 10px;
     background-color: var(--spotify-almost-black);
     border-radius: var(--border-radius);
     width: fit-content;
     height: 30px;
 }
 
+#user_pfp {
+    border-radius: 999px;
+    width: 35px;
+    height: 35px;
+}
+
 #logged_in_message {
+    font-size: 20px;
     padding: 10px;
 }
 
@@ -85,7 +102,7 @@ form {
     color: white;
     border-radius: 999px;
     border: none;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 400;
     padding: 10px;
     cursor: pointer;
