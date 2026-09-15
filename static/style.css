@@ -64,6 +64,33 @@ form {
     margin-bottom: 5px;
 }
 
+#logged_in_display_div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px auto;
+    padding: 10px 20px;
+    background-color: var(--spotify-almost-black);
+    border-radius: var(--border-radius);
+    width: fit-content;
+    height: 30px;
+}
+
+#logged_in_message {
+    padding: 10px;
+}
+
+#spotify_logout {
+    background-color: var(--spotify-dark-grey);
+    color: white;
+    border-radius: 999px;
+    border: none;
+    font-size: 16px;
+    font-weight: 400;
+    padding: 10px;
+    cursor: pointer;
+}
+
 #input_box_whole {
     position: relative;
     height: 290px;

@@ -35,6 +35,13 @@ class NameReq(BaseModel):
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
+# create connection to Redis database, used for login identification
+red = redis.from_url(
+    os.environ["REDIS_URL"],
+    decode_responses=True
+)
+
 # initial webpage setup, cookie generation
 @app.get("/")
 def home(request: Request):
@@ -43,20 +50,26 @@ def home(request: Request):
     if session_id is None:
         # generate a cookie for the user session, required to check if the login button should be hidden
         session_id = secrets.token_hex(16)
+
+    # check if there is a valid access token associated with this user session, identified by session_id/cookie
+    # note here this architecture is not very robust, it could fail if there is an access token
+    # but it has expired. solution would be to retrieve access token info and check validity,
+    # but I'm not doing that while there are higher priorities
+    if red.get(session_id) in [False, None]:
+        should_show_login_button = True
+    else:
+        should_show_login_button = False
+
     # build webpage
     response = templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={}
+        context={"should_show_login_button" : should_show_login_button}
     )
-    # attach cookie to response object
-    response.set_cookie(key="mysession", value=session_id, max_age=3600)
-    return response
+    # attach cookie to response object, can now be matched later
+    response.set_cookie(key="mysession", value=session_id, max_age=86400)
 
-red = redis.from_url(
-    os.environ["REDIS_URL"],
-    decode_responses=True
-)
+    return response
 
 # create a spotify auth object for public playlist access
 def create_public_sp():
@@ -71,12 +84,12 @@ def create_public_sp():
 # create a spotify auth object for user logins, identified by a browser cookie
 def create_sp(red_cache):
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ["SPOTIFY_CLIENT_ID"],
-                                                       client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
-                                                       redirect_uri=os.environ["SPOTIFY_REDIRECT_URI"],
-                                                       scope="playlist-read-private",
-                                                       open_browser = False,
-                                                       cache_handler = red_cache
-                                                       ))
+                                                   client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
+                                                   redirect_uri=os.environ["SPOTIFY_REDIRECT_URI"],
+                                                   scope="playlist-read-private",
+                                                   open_browser = False,
+                                                   cache_handler = red_cache
+                                                   ))
     return sp
 
 #step 2 is to redirect to spotify login to generate the access token
@@ -88,8 +101,9 @@ def login(request : Request):
     spotify_auth_url = sp.auth_manager.get_authorize_url()
     return RedirectResponse(spotify_auth_url)
 
-#step 3 is to get the access token, which should now be stored in
+# step 3 is to get the access token, which should now be stored in
 # the Redis database during create_sp()
+# access token is used to access private user playlists
 @app.get("/callback")
 def callback(code, request : Request):
     cookie = request.cookies.get("mysession")
@@ -146,5 +160,14 @@ def processing(data : NameReq, request : Request):
             "distance_data" : unsorted_data_json,
             "sorted_data" : sorted_data_json
             }
+
+# logout function
+@app.delete("/logout")
+def logout(request: Request):
+    cookie = request.cookies.get("mysession")
+    red.delete(cookie)
+    response = RedirectResponse("/")
+    response.delete_cookie("mysession")
+    return response
 
 # uvicorn api.index:app --reload --port 1234
