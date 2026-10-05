@@ -1,3 +1,4 @@
 # Spotify-Song-Screener
 Source code for my website, which pulls one song from a Spotify account, then searches Spotify for similar matches based on audio data. Current available search fields are playlist, album, and artist catalogue. Working on expanding search field, hopefully to a genre or full catalogue in future.
 Website link: https://spotify-song-screener.vercel.app/
+Note: As a result of the normalisation method the analysis uses (min-max normalisation) the Euclidean distance between two songs may differ on two different submissions due to other songs in the search field changing the boundaries of the normalisation range for duration and tempo. E.g. Song W has duration 10, Song X has 5, Song Y has 15, Song Z has 20. If you compare W to X and Y the normalisation result is different than if you compare W to X, Y, and Z.
