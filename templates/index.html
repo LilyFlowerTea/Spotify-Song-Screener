@@ -8,8 +8,8 @@
 <body>
     <h1>Spotify Song Recommender</h1>
     <div id = "intro_area_div">
-        <p id = "intro_message">This website takes a target song that you choose and finds the closest songs
-        in a comparison object, such as a playlist, album, or artist's catalogue.</p>
+        <p id = "intro_message">This website takes a target song that you choose and finds the most similar songs
+        in a search field you choose, such as a playlist, album, or artist's catalogue.</p>
     </div>
     {% if should_show_login_button %}
     <!--    create authentication button -->
@@ -30,7 +30,7 @@
         </div>
 
     {% endif %}
-    <p>Select your comparison method below:</p>
+    <p>Select your search field below:</p>
 
     <div id = "input_box_whole">
         <div id = "temp_messages_div">
@@ -78,7 +78,7 @@
 
         <div id = "weight_selector_div">
             <span id = "weightings_message">If you would like to manually adjust parameter weightings
-                you can do so here. Higher weightings means the ranking will prefer songs that are close
+                you can do so here. Higher weightings means the algorithm will prefer songs that are close
                 in these features over other features.
             </span>
             <div id = "duration" class = "weight_row">
